@@ -9,6 +9,7 @@
 <body>
     <div class="wrapper">
         <%- include('partials/header') %>
+        <%- include('partials/infoBox') %>
         <section class="container">
             <h2 class="main_header"> Welcome to bookworms </h2>
             <p class="main_paragraph"> The best place to find your next read </p>
@@ -26,4 +27,104 @@
         <%- include('partials/footer') %>
     </div>
 </body>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const addToCartButtons = document.querySelectorAll('.book_card_container_addToCart');
+        const infoBox = document.querySelector('.info-box_container');
+        const infoBoxText = document.querySelector('.info-box_text');
+
+        if(sessionStorage.getItem('showInfoBox') === 'true')
+        {
+            setTimeout(() => {
+                infoBoxText.textContent = sessionStorage.getItem('infoBoxText');
+
+                if(sessionStorage.getItem('infoBoxSuccess') === 'true')
+                {
+                    infoBox.classList.add('info-box_success');
+                }
+
+                sessionStorage.removeItem('infoBoxSuccess');
+                sessionStorage.removeItem('infoBoxText');
+                sessionStorage.removeItem('showInfoBox');
+
+                infoBox.classList.remove('info-box_hidden');
+                setTimeout(() => {
+                    infoBox.classList.add('info-box_hidden');
+                }, 4000);
+
+                setTimeout(() => {
+                    infoBox.classList.remove('info-box_success');
+                }, 5000)
+
+                
+            }, 500);
+        }
+        
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', async (event) => {
+                event.preventDefault();
+
+                try
+                {
+                    const response = await fetch('/api/checkLogedState', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if(response.status == 200)
+                    {
+                        const bookTitle = button.getAttribute('data-title');
+
+                        const response = await fetch('/api/addToCart', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ title: bookTitle })
+                        });
+
+                        if(response.status == 200)
+                        {
+                            //display success message
+                            infoBoxText.textContent = `Book '${bookTitle}' added to cart`;
+                            infoBox.classList.add('info-box_success');
+                            infoBox.classList.remove('info-box_hidden');
+                            setTimeout(() => {
+                                infoBox.classList.add('info-box_hidden');
+                            }, 4000);
+                        }
+                        else
+                        {
+                            //display error message
+                            infoBoxText.textContent = 'Error adding book to cart. Try again later!';
+                            infoBox.classList.remove('info-box_success');
+                            infoBox.classList.remove('info-box_hidden');
+                            setTimeout(() => {
+                                infoBox.classList.add('info-box_hidden');
+                            }, 4000);
+                        }
+                    }
+                    else
+                    {
+                        //display error message
+                        console.log('You must be logged in to add a book to the cart');
+                        infoBoxText.textContent = 'You must be logged in to add a book to the cart';
+                        infoBox.classList.remove('info-box_success');
+                        infoBox.classList.remove('info-box_hidden');
+                        setTimeout(() => {
+                            infoBox.classList.add('info-box_hidden');
+                        }, 4000);
+                    }
+
+                }
+                catch(error)
+                {
+                    console.error('Error adding book to cart');
+                }
+            });
+        });
+    });
+</script>
 </html>

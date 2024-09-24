@@ -86,19 +86,19 @@ class Book {
 }
 
 class MultiVolumeBook extends Book {
-   constructor(title, author, price, language, condition, used_condition = null, quantity, category, subcategory = null, pages, volume = null) {
+   constructor(title, author, price, language, condition, used_condition = null, quantity, category, subcategory = null, pages, volumes = null) {
       super(title, author, price, language, condition, used_condition, quantity, category, subcategory, pages);
 
-      if(volume !== null)
-            this.volume = volume;
+      if(volumes !== null)
+            this.volumes = volumes;
       else 
-            this.volume = [];
+            this.volumes = [];
 
    }
 
    addVolume(volume) {
       if(volume instanceof Book) {
-         this.volume.push(volume);
+         this.volumes.push(volume);
       }
       else 
       {
@@ -107,7 +107,7 @@ class MultiVolumeBook extends Book {
    }
 
    getVolume() {
-      return this.volume;
+      return this.volumes;
    }
 }
 

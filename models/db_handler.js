@@ -46,30 +46,6 @@ class DB_Handler {
                }
             });
          });
-
-         // this.db.connection.query('SELECT * FROM books', (error, results) => {
-         //    if (error) 
-         //    {
-         //       if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
-         //       else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
-         //       else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
-         //       else reject(new Error('An unknown error occurred.' + error));
-         //    }
-         //    else 
-         //    {
-         //       const books = results.map(row => new Book(row.title, 
-         //          row.author, 
-         //          row.price,
-         //          row.language,
-         //          row.book_condition,
-         //          row.used_condition,
-         //          row.quantity,
-         //          row.category,
-         //          row.pages));
-         //       resolve(books);
-         //    }
-         // });
-         // });
       }
 
       async getMultiVolumeBooks() {
@@ -98,20 +74,41 @@ class DB_Handler {
                }
                else 
                {
-                  
-                  const multivolumebooks = results.map(row => 
-                     new MultiVolumeBook(row.title, 
-                     row.author, 
-                     row.price,
-                     row.language,
-                     row.book_condition,
-                     row.used_condition,
-                     row.quantity,
-                     row.category_name,
-                     row.subcategory_name,
-                     row.pages,
-                     this.getMultiVolumeBookVolumes(row.id)));
-                  resolve(multivolumebooks);
+                  if (results.length === 0 || !results[0]) {
+                     return reject(new Error('Book not found'));
+                 }
+                 
+                 const volumePromises = results.map(row => {
+                     return this.getMultiVolumeBookVolumes(row.id)
+                        .then(volumes => {
+                           return new MultiVolumeBook(
+                              row.title,
+                              row.author,
+                              row.price,
+                              row.language,
+                              row.book_condition,
+                              row.used_condition,
+                              row.quantity,
+                              row.category_name,
+                              row.subcategory_name,
+                              row.pages,
+                              volumes
+                           );
+                        })
+                        .catch(error => {
+                           console.error('Error fetching volumes for book ID:', row.id, error);
+                           throw error;
+                        });
+                 });
+                 
+                  Promise.all(volumePromises)
+                  .then(multivolumebooks => {
+                     resolve(multivolumebooks);
+                  })
+                  .catch(error => {
+                     console.error('Error resolving MultiVolumeBooks:', error);
+                     reject(error);
+                  });
                }
             });
          });
@@ -140,7 +137,7 @@ class DB_Handler {
             INNER JOIN book ON book.id = multivolumebookvolumes.book_id 
             INNER JOIN category ON book.category = category.id
             INNER JOIN subcategory ON book.subcategory = subcategory.id
-            WHERE multivolumebookvolumes.multi_volume_book_id = ?; `, [id], (error, results) => {
+            WHERE multivolumebookvolumes.multi_volume_book_id = ? `, [id], (error, results) => {
                if (error) 
                {
                   if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
@@ -150,7 +147,10 @@ class DB_Handler {
                }
                else 
                {
-                  if(results.length === 0) reject(new Error('Book not found'));
+                  if (results.length === 0 || !results[0]) {
+                     return reject(new Error('Book not found'));
+                  }
+                  
                   const books = results.map(row => new Book(row.title,
                      row.author,
                      row.price,
@@ -197,7 +197,21 @@ class DB_Handler {
          if(title.length > 50) throw new Error('Book title is too long');
 
          return new Promise((resolve, reject) => {
-            this.db.connection.query('SELECT * FROM book WHERE title = ?', [title], (error, results) => {
+            this.db.connection.query(`SELECT 
+               book.title, 
+               book.author, 
+               book.price, 
+               book.language, 
+               book.book_condition, 
+               book.used_condition, 
+               book.quantity, 
+               category.name AS category_name, 
+               subcategory.name AS subcategory_name, 
+               book.pages 
+            FROM book 
+            INNER JOIN category ON book.category = category.id 
+            INNER JOIN subcategory ON book.subcategory = subcategory.id
+            WHERE book.title = ?`, [title], (error, results) => {
                if (error) 
                {
                   if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
@@ -207,11 +221,86 @@ class DB_Handler {
                }
                else 
                {
-                  if(results.length === 0) reject(new Error('Book not found'));
-                  resolve(results[0]);
+                  if (results.length === 0 || !results[0]) {
+                     return reject(new Error('Book not found'));
+                  }                  
+
+                  const book = new Book(results[0].title,
+                     results[0].author,
+                     results[0].price,
+                     results[0].language,
+                     results[0].book_condition,
+                     results[0].used_condition,
+                     results[0].quantity,
+                     results[0].category_name,
+                     results[0].subcategory_name,
+                     results[0].pages);
+                  resolve(book);
                }
             })
          })
+      }
+
+      async getMultiVolumeBookByTitle(title) {
+         if(!title) throw new Error('Book title is missing ');
+
+         if(typeof title !== 'string') throw new Error('Book title must be a string');
+
+         if(title.length < 3) throw new Error('Book title is too short');
+         if(title.length > 50) throw new Error('Book title is too long');
+
+         return new Promise((resolve, reject) => {
+            this.db.connection.query(`SELECT
+               multivolumebook.id,
+               multivolumebook.title,
+               multivolumebook.author,
+               multivolumebook.price,
+               multivolumebook.language,
+               multivolumebook.book_condition,
+               multivolumebook.used_condition,
+               multivolumebook.quantity,
+               category.name AS category_name,
+               subcategory.name AS subcategory_name,
+               multivolumebook.pages
+            FROM multivolumebook
+            INNER JOIN category ON multivolumebook.category = category.id
+            INNER JOIN subcategory ON multivolumebook.subcategory = subcategory.id
+            WHERE multivolumebook.title = ?`, [title], (error, results) => {
+               if (error) 
+               {
+                  if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                  else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                  else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                  else reject(new Error('An unknown error occurred.' + error));
+               }
+               else 
+               {
+                  if (results.length === 0 || !results[0]) {
+                     return reject(new Error('Book not found'));
+                  }
+
+                  this.getMultiVolumeBookVolumes(results[0].id)
+                  .then(volumes => {
+                     const multivolumebook = new MultiVolumeBook(results[0].title,
+                        results[0].author,
+                        results[0].price,
+                        results[0].language,
+                        results[0].book_condition,
+                        results[0].used_condition,
+                        results[0].quantity,
+                        results[0].category_name,
+                        results[0].subcategory_name,
+                        results[0].pages,
+                        volumes);
+                     resolve(multivolumebook);
+                  })
+                  .catch(error => {
+                     console.error(error);
+                     reject(error);
+                  });
+               }
+            })
+         });
       }
 
       async getBookById(id) {
