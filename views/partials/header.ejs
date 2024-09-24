@@ -1,0 +1,69 @@
+<header class="header">
+   <a class="header_home" href="/"> Bookworms </a>
+   <nav class="header_menu">
+      <ul>
+         <li><a href="/cart">Cart</a></li>
+         <li><a href="/login">Login</a></li>
+         <li><a href="/register">Register</a></li>
+      </ul>
+   </nav>
+</header>
+<script>
+   document.addEventListener('DOMContentLoaded', async () => {
+      try 
+      {
+         const response = await fetch('/api/checkLogedState', {
+            method: 'GET',
+            headers: {
+               'Content-Type': 'application/json'
+            }
+         });
+
+         if (response.status === 200) {
+            const data = await response.json();
+            const headerMenu = document.querySelector('.header_menu');
+            headerMenu.innerHTML = `
+               <ul>
+                  <li><a href="/cart">Cart</a></li>
+                  <li><a href="/profile">Profile</a></li>
+                  <li><a href="" id="logout">Logout</a></li>
+               </ul>
+            `;
+
+            const logoutButton = document.getElementById('logout');
+            logoutButton.addEventListener('click', async () => {
+               try 
+               {
+                  const response = await fetch('/api/logout', {
+                     method: 'POST',
+                     headers: {
+                        'Content-Type': 'application/json'
+                     }
+                  });
+
+                  if (response.status === 200) 
+                  {
+                     window.location.href = '/';
+                  } 
+                  else 
+                  {
+                     console.error('Error logging out');
+                  }
+               } 
+               catch (error) 
+               {
+                  console.error('Error logging out:', error);
+               }
+            });
+         } 
+         else 
+         {
+            console.log('Not logged in');
+         }
+      } 
+      catch (error) 
+      {
+         console.error('Error fetching logged state:', error);
+      }
+   });
+</script>

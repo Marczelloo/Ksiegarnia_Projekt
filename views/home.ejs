@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Bookworms </title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <%- include('partials/header') %>
+        <section class="container">
+            <h2 class="main_header"> Welcome to bookworms </h2>
+            <p class="main_paragraph"> The best place to find your next read </p>
+
+            <% if (errorMessage) { %>
+                <p class="main_books_error_message"> <%= error %> </p>
+            <% } else { %>
+                <div class="main_books_container">
+                <% books.forEach(element => { %>
+                <%- include('partials/book_card.ejs', { book: element }) %>
+                <% }); %>
+                </div>
+            <% } %>
+        </section>
+        <%- include('partials/footer') %>
+    </div>
+</body>
+</html>

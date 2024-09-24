@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="PL-pl">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title> Login </title>
+   <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+   <div class="wrapper">
+      <%- include('partials/header') %>
+      <section class="container container-centered">
+         <form method="POST" class="login_container" id="loginForm">
+            <h2> Login </h2>
+            <label for="email"> Email </label>
+            <input type="email" name="email" id="email">
+            <label for="password"> Password </label>
+            <input type="password" name="password" id="password">
+            <a href="/register"> Don't have an account? Register </a>
+            <a href="/forgot-password"> Forgot password? </a>
+            <p id="errorInfo" style="display: none; color: rgb(236, 95, 95); font-weight: 600;"></p>
+            <button type="submit"> Login </button>
+         </form>
+      </section>
+      <%- include('partials/footer') %>
+   </div>
+   <script>
+      function validateEmail(email) {
+         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+         return re.test(String(email).toLowerCase());
+      }
+
+      document.getElementById('loginForm').addEventListener('submit', async function(event) {
+         event.preventDefault();
+         const errorInfoText = document.getElementById('errorInfo');
+         
+         const email = document.getElementById('email').value;
+         const password = document.getElementById('password').value;
+         
+         if (!email || !password) {
+            errorInfoText.style.display = 'block';
+            errorInfoText.innerText = 'Please fill all fields';
+            return;
+         }
+
+         if (!validateEmail(email)) {
+            errorInfoText.style.display = 'block';
+            errorInfoText.innerText = 'Invalid email';
+            return;
+         }
+
+         if(password.length < 8) {
+            errorInfoText.style.display = 'block';
+            errorInfoText.innerText = 'Password must be at least 8 characters long';
+            return;
+         }
+
+         //this.submit();
+
+         try 
+         {
+
+            const response = await fetch('api/login', {
+               method: 'POST',
+               headers: {
+                  'Content-Type': 'application/json'
+               },
+               body: JSON.stringify({
+                  email,
+                  password
+               })
+            });
+
+            if(response.status === 200)
+            {
+               const data = await response.json();
+               window.location.href = '/';
+            }
+            else
+            {
+               const data = await response.json();
+               errorInfoText.style.display = 'block';
+               errorInfoText.innerText = data.message;
+            }
+         }
+         catch(error)
+         {
+            console.error('Error: ', error);
+            errorInfoText.style.display = 'block';
+            errorInfoText.innerText = 'An error occurred while logging in. Try again later';
+         }
+         
+
+      })
+   </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+CREATE TABLE Book (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    language ENUM('polish', 'english') NOT NULL,
+    book_condition ENUM('new', 'used') NOT NULL,
+    used_condition ENUM('very good', 'good', 'damaged'),
+    quantity INT NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    pages INT NOT NULL
+);
+
+CREATE TABLE MultiVolumeBook (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    language ENUM('polish', 'english') NOT NULL,
+    book_condition ENUM('new', 'used') NOT NULL,
+    used_condition ENUM('very good', 'good', 'damaged'),
+    quantity INT NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    pages INT NOT NULL
+);
+
+CREATE TABLE MultiVolumeBookVolumes (
+    multi_volume_book_id INT,
+    book_id INT,
+    PRIMARY KEY (multi_volume_book_id, book_id),
+    FOREIGN KEY (multi_volume_book_id) REFERENCES MultiVolumeBook(id),
+    FOREIGN KEY (book_id) REFERENCES Book(id)
+);
+
+CREATE TABLE `Order` (
+    orderId INT AUTO_INCREMENT PRIMARY KEY,
+    customerId INT NOT NULL,
+    orderDate DATETIME NOT NULL,
+    totalAmount DECIMAL(10, 2) NOT NULL
+);
+
+CREATE TABLE OrderItem (
+    orderItemId INT AUTO_INCREMENT PRIMARY KEY,
+    orderId INT NOT NULL,
+    bookId INT,
+    multiVolumeBookId INT,
+    quantity INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (orderId) REFERENCES `Order`(orderId),
+    FOREIGN KEY (bookId) REFERENCES Book(id),
+    FOREIGN KEY (multiVolumeBookId) REFERENCES MultiVolumeBook(id),
+    CHECK (bookId IS NOT NULL OR multiVolumeBookId IS NOT NULL)
+);

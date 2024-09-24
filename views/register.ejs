@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="PL-pl">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title> Register </title>
+   <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+   <div class="wrapper">
+      <%- include('partials/header') %>
+      <section class="container container-centered">
+         <form method="POST" class="login_container" id="registerForm">
+            <h2> Register </h2>
+            <label for="username"> Username </label>
+            <input type="text" name="username" id="username">
+            <label for="email"> Email </label>
+            <input type="email" name="email" id="email">
+            <label for="password"> Password </label>
+            <input type="password" name="password" id="password">
+            <label for="password2"> Repeat password </label>
+            <input type="password" name="password2" id="password2">
+            <a href="/login"> Already have an account? Login </a>
+            <p id="errorInfo" style="display: none; color: rgb(236, 95, 95); font-weight: 600;"></p>
+            <button type="submit"> Register </button>
+         </form>
+      </section>
+      <%- include('partials/footer') %>
+   </div>
+   <script>
+      function validateEmail(email) {
+         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+         return re.test(String(email).toLowerCase());
+      }
+
+      document.getElementById('registerForm').addEventListener('submit', async function(event) {
+         event.preventDefault();
+         const errorInfoText = document.getElementById('errorInfo');
+         errorInfoText.style.display = 'none';
+         
+         const username = document.getElementById('username').value;
+         const email = document.getElementById('email').value;
+         const password = document.getElementById('password').value;
+         const password2 = document.getElementById('password2').value;
+         
+         if (!username || !email || !password || !password2) {
+            errorInfoText.style.display = 'block';
+            errorInfoText.innerText = 'Please fill all fields';
+            return;
+         }
+
+         if (!validateEmail(email)) {
+            errorInfoText.style.display = 'block';
+            errorInfoText.innerText = 'Invalid email';
+            return;
+         }
+
+         if(password.length < 8) {
+            errorInfoText.style.display = 'block';
+            errorInfoText.innerText = 'Password must be at least 8 characters long';
+            return;
+         }
+
+         if(password !== password2) {
+            errorInfoText.style.display = 'block';
+            errorInfoText.innerText = 'Passwords do not match';
+            return;
+         }
+
+         try
+         {
+            const response = await fetch('api/register', {
+               method: 'POST',
+               headers: {
+                  'Content-Type': 'application/json'
+               },
+               body: JSON.stringify({
+                  username,
+                  email,
+                  password,
+               })
+            });
+
+            if(response.status === 200)
+            {
+               console.log('Registered successfully');
+               const data = await response.json();
+               console.log(data);
+               window.location.href = '/';
+            }
+            else
+            {
+               const data = await response.json();
+
+               if (data.error) 
+               {
+                  errorInfoText.style.display = 'block';
+                  errorInfoText.innerText = data.error;
+               }
+            }
+         }
+         catch (error)
+         {
+            errorInfoText.style.display = 'block';
+            errorInfoText.innerText = 'An error occurred';
+            console.error('Error: ');
+            console.error(error);
+         }
+      });
+   </script>
+</body>
+</html>

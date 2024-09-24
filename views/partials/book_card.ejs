@@ -1,0 +1,17 @@
+<a href="/book/<%= book.get_title() %>" class="book_card_container"> 
+    <img src="/assets/images/book_placeholder.png" alt="Book placeholder">
+    <div class="book_card_container_info">
+        <p class="book_card_container_title"> <%= book.get_title() %> </p>
+        <p class="book_card_container_autho"> <%= book.get_author() %> </p>
+        <div class="book_card_container_row">
+            <p> <%= book.get_category() %> </p>
+            <p> <%= book.get_pages() %> pp.</p>
+        </div>
+        <p class="book_card_subcategory"> <%= book.get_subcategory() %> </p>
+        <p class="book_card_container_price"> <%= book.get_price() %> &euro; </p>
+    </div>
+    <button class="book_card_container_addToCart"> <img src="/assets/images/addToCart.png" alt="Add to cart icon"/> Add to cart </button>
+</a>
+<script>
+    
+</script>

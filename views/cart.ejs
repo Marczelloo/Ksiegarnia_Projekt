@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="PL-pl">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title> Cart </title>
+   <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+   <div class="wrapper">
+      <%- include('partials/header') %>
+      <section class="container">
+         <h1 class="cart_header"> Cart </h1>
+         <div class="cart_container">
+            <div class="cart_container_left">
+               <% if (items.length != 0) { %>
+                  <ul>
+                     <% items.forEach((element, index) => { %>
+                        <% if (index === items.length - 1) { %>
+                           <li class="cart_item">
+                        <% } else { %>
+                           <li class="cart_item cart_item_separator">
+                        <% } %>
+                        <%- include('partials/cart_item', { item: element }) %>
+                        </li>
+                     <% }); %>
+                  </ul>
+               <% } else { %>
+                  <p> Your cart is empty </p>
+               <% } %>
+            </div>
+            <div class="cart_container_right">
+               <div class="cart_container_right_total">
+                  <p> Total price </p>
+                  <p class="cart_container_right_total_grayed"> Items: 0 &euro; </p>
+                  <p class="cart_container_right_total_grayed"> Discounts: 0 &euro; </p>
+                  <p class="cart_container_right_total_price"> Total: 0 &euro; </p>
+                  <button> Place order </button>
+               </div>
+            </div>
+         </div>
+      </section>
+      <%- include('partials/footer') %>
+   </div>
+</body>
+</html>
