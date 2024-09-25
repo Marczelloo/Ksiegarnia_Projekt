@@ -13,7 +13,7 @@
          <h1 class="cart_header"> Cart </h1>
          <div class="cart_container">
             <div class="cart_container_left">
-               <% if (items.length != 0) { %>
+               <% if (items.length != 0 && logged) { %>
                   <ul>
                      <% items.forEach((element, index) => { %>
                         <% if (index === items.length - 1) { %>
@@ -25,8 +25,10 @@
                         </li>
                      <% }); %>
                   </ul>
+               <% } else if(logged && items.length == 0) { %>
+                  <p class="cart_container_left_info"> Your cart is empty </p>
                <% } else { %>
-                  <p> Your cart is empty </p>
+                  <p class="cart_container_left_info"> You need to be logged in to see your cart </p>
                <% } %>
             </div>
             <div class="cart_container_right">

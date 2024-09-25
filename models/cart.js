@@ -10,24 +10,23 @@ class Cart {
       this.items = [];
    }
 
-   addItem(item, quantity) {
-      if(quantity > book.quantity) {
-         throw new Error('Not enough books in stock');
-      }
-      this.items.push(new CartItem(item, quantity));
+   addItem(item) 
+   {
+      this.items.push(item);
    }
 
-   removeItem(item) {
-      this.items.push = this.items.filter(item => item.item !== item);
+   removeItem(item) 
+   {
+      this.items = this.items.filter(cartItem => cartItem !== item);
    }
 
-   modifyItem(item, quantity) {
-      for(let item of this.items) {
-         if(item.item === item) {
-            if(quantity > book.quantity) {
-               throw new Error('Not enough books in stock');
-            }
-            item.quantity = quantity;
+   modifyItem(item, quantity) 
+   {
+      for(let cartItem of this.items)
+      {
+         if(cartItem === item)
+         {
+            cartItem.quantity = quantity;
          }
       }
    }
@@ -49,4 +48,4 @@ class Cart {
    }
 }
 
-module.exports = Cart;
+module.exports = { Cart, CartItem };

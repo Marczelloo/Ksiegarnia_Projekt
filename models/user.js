@@ -1,4 +1,4 @@
-const Cart = require('./cart');
+const { Cart } = require('./cart');
 
 class User {
    constructor(username, email, password) {
@@ -6,6 +6,15 @@ class User {
       this.email = email;
       this.password = password;
       this.cart = new Cart();
+   }
+
+   static fromSession(sessionUser) {
+      return new User(
+         sessionUser.username,
+         sessionUser.email,
+         sessionUser.password,
+         new Cart(sessionUser.cart.items || [])
+      );
    }
 
    get_username() {

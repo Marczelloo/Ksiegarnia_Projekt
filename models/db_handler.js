@@ -398,6 +398,8 @@ class DB_Handler {
                else
                {
                   if(results.length === 0) reject(new Error('User not found'));
+
+                  console.log(results[0]);
                   
                   const user = new User(results[0].username, results[0].email, results[0].password);
                   resolve(user);

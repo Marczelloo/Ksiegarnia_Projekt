@@ -485,3 +485,10 @@ html, body {
    opacity: .8;
 }
 
+.cart_container_left_info {
+   padding-top: 1rem;
+   font-size: 1.25rem;
+   font-weight: 600;
+   text-align: center;
+}
+

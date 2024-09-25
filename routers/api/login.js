@@ -15,10 +15,6 @@ router.post('/', (req, res) => {
       .then(user => {
          req.session.user = user;
          res.json({ message: 'User logged in successfully'})
-
-         // const stringifiedUser = JSON.stringify(user);
-         // res.cookie('user', stringifiedUser, { maxAge: 900000, httpOnly: true });
-         // res.json({ message: 'User logged in successfully', stringifiedUser });
       })
       .catch(error => {
          res.render('login_page', { error: error.message });
