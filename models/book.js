@@ -83,6 +83,36 @@ class Book {
       set_pages(pages) {
             this.pages = pages;
       }
+
+      static fromSession(sessionBook) {
+            return new Book(
+                  sessionBook.title,
+                  sessionBook.author,
+                  sessionBook.price,
+                  sessionBook.language,
+                  sessionBook.condition,
+                  sessionBook.used_condition,
+                  sessionBook.quantity,
+                  sessionBook.category,
+                  sessionBook.subcategory,
+                  sessionBook.pages
+            );
+      }
+    
+      toJSON() {
+            return {
+                title: this.title,
+                author: this.author,
+                price: this.price,
+                language: this.language,
+                condition: this.condition,
+                used_condition: this.used_condition,
+                quantity: this.quantity,
+                category: this.category,
+                subcategory: this.subcategory,
+                pages: this.pages
+            };
+      }
 }
 
 class MultiVolumeBook extends Book {

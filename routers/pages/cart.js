@@ -1,31 +1,57 @@
 const express = require('express');
 const User = require('../../models/user');
+const { Cart } = require('../../models/cart');
 const router = express.Router();
 
 router.get('/', (req, res) => {
-   if(req.session.user)
+   if (req.session.user) 
    {
-      if(req.session.user.cart.length == 0)
+      console.log(req.session.user);
+
+      console.log(Cart.fromSession(req.session.user.cart));
+
+      const user = User.fromSession(req.session.user);
+   
+      console.log("user", user);
+
+      if (user.cart.items.length === 0) 
       {
-         res.render('cart', { items: [], logged: true});
+         res.render('cart', { 
+            items: [], 
+            cartPrice: 0,
+            discountPrice: 0,
+            cartTotal: 0,
+            logged: true 
+         });
+      } 
+      else 
+      {
+         const cartPrice = user.calculate_cart_total();
+         const discountPrice = cartPrice - user.apply_discount();
+         const cartTotal = user.apply_discount();
+
+         console.log("cartPrice", cartPrice);
+         console.log("discountPrice", discountPrice);
+         console.log("cartTotal", cartTotal);
+
+         res.render('cart', { 
+            items: user.cart.items, 
+            cartPrice, discountPrice, 
+            cartTotal, 
+            logged: true 
+         });
       }
-      else
-      {  
-         console.log(req.session.user)
-         const user = User.fromSession(req.session.user);
-         const cartPrice = user.cart.calculateTotal();
-         const discountPrice = cartPrice - user.cart.appyDiscount();
-         const cartTotal = user.cart.appyDiscount();
-         console.log(user);
-         req.session.user = user;
-         res.render('cart', { items: req.session.user.cart.items, cartPrice, discountPrice, cartTotal, logged: true});
-      }
-   }
-   else
+   } 
+   else 
    {
-      res.render('cart', { items: [], logged: false });
-      return
+      res.render('cart', { 
+         items: [], 
+         cartPrice: 0,
+         discountPrice: 0,
+         cartTotal: 0,
+         logged: false 
+      });
    }
-})
+});
 
 module.exports = router;

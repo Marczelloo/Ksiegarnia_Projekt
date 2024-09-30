@@ -1,21 +1,12 @@
 const { Cart } = require('./cart');
 
 class User {
-   constructor(username, email, password) {
+   constructor(username, email, password, cart) {
       this.username = username;
       this.email = email;
       this.password = password;
-      this.cart = new Cart();
-   }
-
-   static fromSession(sessionUser) {
-      return new User(
-         sessionUser.username,
-         sessionUser.email,
-         sessionUser.password,
-         new Cart(sessionUser.cart.items || [])
-      );
-   }
+      this.cart = cart || new Cart();
+  }
 
    get_username() {
       return this.username;
@@ -67,6 +58,20 @@ class User {
 
    apply_discount() {
       return this.cart.appyDiscount();
+   }
+
+   static fromSession(sessionUser) {
+      const cart = Cart.fromSession(sessionUser.cart);
+      return new User(sessionUser.username, sessionUser.email, sessionUser.password, cart);
+  }
+
+   toJSON() {
+      return {
+          username: this.username,
+          email: this.email,
+          password: this.password,
+          cart: this.cart.toJSON()
+      };
    }
 }
 
