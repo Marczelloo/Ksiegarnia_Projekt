@@ -41,7 +41,7 @@
                   <p class="cart_container_right_total_grayed"> Items: <%= cartPrice ? cartPrice : 0 %> &euro; </p>
                   <p class="cart_container_right_total_grayed"> Discounts: <%= discountPrice ? discountPrice : 0 %> &euro; </p>
                   <p class="cart_container_right_total_price"> Total: <%= cartTotal ? cartTotal : 0 %> &euro; </p>
-                    <button id="place_order" <%= logged && items.length != 0 ? '' : 'disabled' %>> Place order </button>
+                    <button id="place_order" <%= logged && items.length != 0 ? '' : 'disabled' %>> Checkout</button>
                </div>
             </div>
          </div>
@@ -177,7 +177,7 @@
 
       const placeOrderButton = document.getElementById('place_order');
       placeOrderButton.addEventListener('click', () => {
-         window.location.href = '/place_order';
+         window.location.href = '/checkout';
       });
    })
 </script>

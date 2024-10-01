@@ -1,6 +1,5 @@
 const express = require('express');
 const User = require('../../models/user');
-const { Cart } = require('../../models/cart');
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -10,7 +9,7 @@ router.get('/', (req, res) => {
    
       if (user.cart.items.length === 0) 
       {
-         res.render('cart', { 
+         res.render('checkout', { 
             items: [], 
             cartPrice: 0,
             discountPrice: 0,
@@ -24,9 +23,10 @@ router.get('/', (req, res) => {
          const discountPrice = cartPrice - user.apply_discount();
          const cartTotal = user.apply_discount();
 
-         res.render('cart', { 
+         res.render('checkout', { 
             items: user.cart.items, 
-            cartPrice, discountPrice, 
+            cartPrice, 
+            discountPrice, 
             cartTotal, 
             logged: true 
          });
@@ -34,7 +34,7 @@ router.get('/', (req, res) => {
    } 
    else 
    {
-      res.render('cart', { 
+      res.render('checkout', { 
          items: [], 
          cartPrice: 0,
          discountPrice: 0,
@@ -42,6 +42,6 @@ router.get('/', (req, res) => {
          logged: false 
       });
    }
-});
+})
 
 module.exports = router;

@@ -48,7 +48,7 @@ let pageRoutes = [
    { path: '/login', route: require('./routers/pages/login.js') },
    { path: '/cart', route: require('./routers/pages/cart.js') },
    { path: '/book', route: require('./routers/pages/book.js') },
-   { path: '/place_order', route: require('./routers/pages/place_order.js') },
+   { path: '/checkout', route: require('./routers/pages/checkout.js') },
 ];
 
 // API routes

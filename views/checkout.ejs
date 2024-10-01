@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="PL-pl">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title> Login </title>
+   <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+   <div class="wrapper">
+      <%- include('partials/header') %>
+      <%- include('partials/infoBox') %>
+      <section class="container">
+         <% if (logged && items.length > 0) { %>
+            <h1 class="checkout_header"> Checkout </h1>
+            <form class="checkout_container">
+               <div class="checkout_container_left">
+                  <div class="checkout_container_left_shipping">
+                     <p> Shipping address </p>
+                     <label for="name"> Name </label>
+                     <label for="surname"> Surname </label>
+                     <input type="text" id="name" required>
+                     <input type="text" id="surname" required>
+                     <label for="street"> Street </label>
+                     <label for="city"> City </label>
+                     <input type="text" id="street" required>
+                     <input type="text" id="city" required>
+                     <label for="postal_code"> Postal code </label>
+                     <label for="country"> Country </label>
+                     <input type="text" id="postal_code" required>
+                     <input type="text" id="country" required>
+                  </div>
+                  <div class="checkout_container_left_payment">
+                     <p> Payment method </p>
+                     <label for="card_number"> Card number </label>
+                     <label for="expiration_date"> Expiration date </label>
+                     <input type="text" id="card_number" required>
+                     <input type="text" id="expiration_date" placeholder="ex. 01/24" required>
+                     <label for="cvv"> CVV </label>
+                     <label for="cardholder_name"> Cardholder name </label>
+                     <input type="text" id="cvv" required>
+                     <input type="text" id="cardholder_name" required>
+                  </div>
+                  <div class="checkout_container_left_agreement">
+                     <input type="checkbox" id="agreement" required>
+                     <label for="agreement"> I agree to the terms and conditions </label>
+                  </div>
+               </div>
+               <div class="checkout_container_right">
+                  <p> Summary </p>
+                  <div class="checkout_container_right_summary_items">
+                     <ul>
+                        <p> Items </p>
+                        <% items.forEach((element, index) => { %>
+                        <li class="checkout_item">
+                           <img src="/assets/images/book_placeholder_2.png" alt="book image"/>
+                           <div>
+                              <p class="checkout_item_title" ><%= element.book.title%> </p>
+                              <p class="checkout_item_quantity"> <%= element.quantity %> pcs. </p>
+                              <p class="checkout_item_price" ><%= element.book.price%> &euro; </p>
+                           </div>
+                        </li>
+                        <% }); %>
+                     </ul>
+                  </div>
+                  <p class="checkout_container_right_total"> Total price: <%= cartTotal %> &euro; </p>
+                  <button id="place_checkout"> Order </button>
+               </div>
+            </form>
+         <% } else { %>
+            <p class="checkout_container_error"> You need to be logged in and have items in your cart to place an checkout </p>
+         <% } %>
+      </section>
+      <%- include('partials/footer') %>
+   </div>
+   <script>
+      
+   </script>
+</body>
+</html>
