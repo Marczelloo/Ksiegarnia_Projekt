@@ -209,6 +209,7 @@ html, body {
    display: grid;
    grid-template-columns: repeat(5, 1fr);
    gap: 1rem;
+   row-gap: 2.5rem;
 }
 
 .main_books_error_message {
@@ -510,6 +511,7 @@ html, body {
    font-size: 1.25rem;
    font-weight: 600;
 }
+
 
 .cart_container_right_total > button {
    padding: .5rem 1.5rem;

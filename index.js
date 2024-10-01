@@ -48,6 +48,7 @@ let pageRoutes = [
    { path: '/login', route: require('./routers/pages/login.js') },
    { path: '/cart', route: require('./routers/pages/cart.js') },
    { path: '/book', route: require('./routers/pages/book.js') },
+   { path: '/place_order', route: require('./routers/pages/place_order.js') },
 ];
 
 // API routes
@@ -58,6 +59,7 @@ let apiRoutes = [
    { path: '/api/logout', route: require('./routers/api/logout.js') },
    { path: '/api/checkLogedState', route: require('./routers/api/checkLogedState.js') },
    { path: '/api/addToCart', route: require('./routers/api/addToCart.js') },
+   { path: '/api/cart', route: require('./routers/api/cart.js') },
 ];
 
 pageRoutes.forEach(route => {

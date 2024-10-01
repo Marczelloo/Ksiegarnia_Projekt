@@ -9,6 +9,7 @@
 <body>
    <div class="wrapper">
       <%- include('partials/header') %>
+      <%- include('partials/infoBox') %>
       <section class="container">
          <h1 class="cart_header"> Cart </h1>
          <div class="cart_container">
@@ -40,7 +41,7 @@
                   <p class="cart_container_right_total_grayed"> Items: <%= cartPrice ? cartPrice : 0 %> &euro; </p>
                   <p class="cart_container_right_total_grayed"> Discounts: <%= discountPrice ? discountPrice : 0 %> &euro; </p>
                   <p class="cart_container_right_total_price"> Total: <%= cartTotal ? cartTotal : 0 %> &euro; </p>
-                  <button> Place order </button>
+                    <button id="place_order" <%= logged && items.length != 0 ? '' : 'disabled' %>> Place order </button>
                </div>
             </div>
          </div>
@@ -48,4 +49,136 @@
       <%- include('partials/footer') %>
    </div>
 </body>
+<script>
+   document.addEventListener("DOMContentLoaded", () => {
+      const infoBox = document.querySelector('.info-box_container');
+      const infoBoxText = document.querySelector('.info-box_text');
+
+      const cartItems = document.querySelectorAll('.cart_item');
+      cartItems.forEach(item => {
+         const itemTitle = item.querySelector('.cart_item_title');
+         const quantity = item.querySelector('#quantity');
+
+         const increaseQuantityButton = item.querySelector('#increase_quantity');
+         const decreaseQuantityButton = item.querySelector('#decrease_quantity');
+         const removeButton = item.querySelector('#remove');
+
+         const updateQuantity = (newQuantity) => {
+            fetch('api/cart/update', {
+               method: 'POST',
+               headers: {
+                  'Content-Type': 'application/json'
+               },
+               body: JSON.stringify({
+                  title: itemTitle.textContent,
+                  quantity: newQuantity
+               })
+            })
+            .then(response => response.json())
+            .then(data => {
+               if(data.success)
+               {
+                  quantity.textContent = newQuantity;
+
+                  infoBoxText.textContent = data.message;
+                  infoBox.classList.add('info-box_success');
+                  infoBox.classList.remove('info-box_hidden');
+                  setTimeout(() => {
+                     infoBox.classList.add('info-box_hidden');
+                     infoBox.classList.remove('info-box_success');
+                  }, 4000);
+               }
+               else
+               {
+                  infoBoxText.textContent = data.errorMessage;
+                  infoBox.classlist.remove('info-box_success');
+                  infoBox.classList.remove('info-box_hidden');
+                  setTimeout(() => {
+                     infoBox.classList.add('info-box_hidden');
+                  }, 4000);
+               }
+            })
+            .catch(error => {
+               infoBoxText.textContent = 'An error occurred';
+               infoBox.classlist.remove('info-box_success');
+               infoBox.classList.remove('info-box_hidden');
+               setTimeout(() => {
+                  infoBox.classList.add('info-box_hidden');
+               }, 4000);
+            })
+         }
+         
+         
+         increaseQuantityButton.addEventListener('click', () => {
+            const newQuantity = parseInt(quantity.textContent) + 1;
+            updateQuantity(newQuantity);
+         })
+
+         decreaseQuantityButton.addEventListener('click', () => {
+            if (parseInt(quantity.textContent) > 1) {
+               const newQuantity = parseInt(quantity.textContent) - 1;
+               updateQuantity(newQuantity);
+            }
+            else
+            {
+               infoBoxText.textContent = 'Quantity cannot be less than 1';
+               infoBox.classlist.remove('info-box_success');
+               infoBox.classList.remove('info-box_hidden');
+               setTimeout(() => {
+                  infoBox.classList.add('info-box_hidden');
+               }, 4000);
+            }
+         })
+
+         removeButton.addEventListener('click', () => {
+            fetch('api/cart/remove', {
+               method: 'POST', 
+               headers: {
+                  'Content-Type': 'application/json'
+               },
+               body: JSON.stringify({
+                  title: itemTitle.textContent
+               })
+            })
+            .then(response => response.json())
+            .then(data => {
+               if(data.success)
+               {
+                  item.remove();
+
+                  infoBoxText.textContent = data.message;
+                  infoBox.classList.add('info-box_success');
+                  infoBox.classList.remove('info-box_hidden');
+                  setTimeout(() => {
+                     infoBox.classList.add('info-box_hidden');
+                  }, 4000);
+               }
+               else
+               {
+                  infoBoxText.textContent = data.errorMessage;
+                  infoBox.classlist.remove('info-box_success');
+                  infoBox.classList.remove('info-box_hidden');
+                  setTimeout(() => {
+                     infoBox.classList.add('info-box_hidden');
+                  }, 4000);
+               }
+            })
+            .catch(error => {
+               infoBoxText.textContent = 'An error occurred';
+               infoBox.classlist.remove('info-box_success');
+               infoBox.classList.remove('info-box_hidden');
+               setTimeout(() => {
+                  infoBox.classList.add('info-box_hidden');
+               }, 4000);
+            })
+         })
+
+      })
+
+      const placeOrderButton = document.getElementById('place_order');
+      placeOrderButton.addEventListener('click', () => {
+         window.location.href = '/place_order';
+      });
+   })
+</script>
 </html>
