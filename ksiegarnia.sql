@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Czas generowania: 23 Wrz 2024, 16:28
--- Wersja serwera: 10.4.22-MariaDB
--- Wersja PHP: 8.1.1
+-- Generation Time: Paź 02, 2024 at 02:38 AM
+-- Wersja serwera: 10.4.32-MariaDB
+-- Wersja PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Baza danych: `ksiegarnia`
+-- Database: `ksiegarnia`
 --
 
 -- --------------------------------------------------------
@@ -39,28 +39,28 @@ CREATE TABLE `book` (
   `category` int(11) NOT NULL,
   `subcategory` int(11) NOT NULL,
   `pages` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Zrzut danych tabeli `book`
+-- Dumping data for table `book`
 --
 
 INSERT INTO `book` (`id`, `title`, `author`, `price`, `language`, `book_condition`, `used_condition`, `quantity`, `category`, `subcategory`, `pages`) VALUES
-(1, 'The Girl with the Dragon Tattoo', 'Stieg Larsson', '19.99', 'english', 'new', 'very good', 5, 1, 1, 672),
-(2, 'Sapiens: A Brief History of Humankind', 'Yuval Noah Harari', '25.99', 'english', 'new', 'very good', 10, 2, 5, 498),
-(3, 'Alice\'s Adventures in Wonderland', 'Lewis Carroll', '10.50', 'english', 'new', 'very good', 8, 3, 8, 176),
-(4, 'Clean Code', 'Robert C. Martin', '29.99', 'english', 'new', 'very good', 12, 4, 10, 464),
-(5, 'The Fellowship of the Ring', 'J.R.R. Tolkien', '25.00', 'english', 'new', 'very good', 5, 1, 3, 432),
-(6, 'The Two Towers', 'J.R.R. Tolkien', '25.00', 'english', 'new', 'very good', 5, 1, 3, 352),
-(7, 'The Return of the King', 'J.R.R. Tolkien', '25.00', 'english', 'new', 'very good', 5, 1, 3, 432),
-(8, 'Foundation', 'Isaac Asimov', '20.00', 'english', 'new', 'very good', 6, 1, 2, 296),
-(9, 'Foundation and Empire', 'Isaac Asimov', '20.00', 'english', 'new', 'very good', 6, 1, 2, 352),
-(10, 'Second Foundation', 'Isaac Asimov', '20.00', 'english', 'new', 'very good', 6, 1, 2, 312),
-(11, 'A Game of Thrones', 'George R.R. Martin', '30.00', 'english', 'new', 'very good', 4, 1, 3, 835),
-(12, 'A Clash of Kings', 'George R.R. Martin', '30.00', 'english', 'new', 'very good', 4, 1, 3, 761),
-(13, 'A Storm of Swords', 'George R.R. Martin', '30.00', 'english', 'new', 'very good', 4, 1, 3, 973),
-(14, 'A Feast for Crows', 'George R.R. Martin', '30.00', 'english', 'new', 'very good', 4, 1, 3, 753),
-(15, 'A Dance with Dragons', 'George R.R. Martin', '30.00', 'english', 'new', 'very good', 4, 1, 3, 1056);
+(1, 'The Girl with the Dragon Tattoo', 'Stieg Larsson', 19.99, 'english', 'new', 'very good', 5, 1, 1, 672),
+(2, 'Sapiens: A Brief History of Humankind', 'Yuval Noah Harari', 25.99, 'english', 'new', 'very good', 10, 2, 5, 498),
+(3, 'Alice\'s Adventures in Wonderland', 'Lewis Carroll', 10.50, 'english', 'new', 'very good', 8, 3, 8, 176),
+(4, 'Clean Code', 'Robert C. Martin', 29.99, 'english', 'new', 'very good', 12, 4, 10, 464),
+(5, 'The Fellowship of the Ring', 'J.R.R. Tolkien', 25.00, 'english', 'new', 'very good', 5, 1, 3, 432),
+(6, 'The Two Towers', 'J.R.R. Tolkien', 25.00, 'english', 'new', 'very good', 5, 1, 3, 352),
+(7, 'The Return of the King', 'J.R.R. Tolkien', 25.00, 'english', 'new', 'very good', 5, 1, 3, 432),
+(8, 'Foundation', 'Isaac Asimov', 20.00, 'english', 'new', 'very good', 6, 1, 2, 296),
+(9, 'Foundation and Empire', 'Isaac Asimov', 20.00, 'english', 'new', 'very good', 6, 1, 2, 352),
+(10, 'Second Foundation', 'Isaac Asimov', 20.00, 'english', 'new', 'very good', 6, 1, 2, 312),
+(11, 'A Game of Thrones', 'George R.R. Martin', 30.00, 'english', 'new', 'very good', 4, 1, 3, 835),
+(12, 'A Clash of Kings', 'George R.R. Martin', 30.00, 'english', 'new', 'very good', 4, 1, 3, 761),
+(13, 'A Storm of Swords', 'George R.R. Martin', 30.00, 'english', 'new', 'very good', 4, 1, 3, 973),
+(14, 'A Feast for Crows', 'George R.R. Martin', 30.00, 'english', 'new', 'very good', 4, 1, 3, 753),
+(15, 'A Dance with Dragons', 'George R.R. Martin', 30.00, 'english', 'new', 'very good', 4, 1, 3, 1056);
 
 -- --------------------------------------------------------
 
@@ -71,10 +71,10 @@ INSERT INTO `book` (`id`, `title`, `author`, `price`, `language`, `book_conditio
 CREATE TABLE `category` (
   `id` int(11) NOT NULL,
   `name` varchar(150) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Zrzut danych tabeli `category`
+-- Dumping data for table `category`
 --
 
 INSERT INTO `category` (`id`, `name`) VALUES
@@ -101,16 +101,16 @@ CREATE TABLE `multivolumebook` (
   `category` int(11) NOT NULL,
   `subcategory` int(11) NOT NULL,
   `pages` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Zrzut danych tabeli `multivolumebook`
+-- Dumping data for table `multivolumebook`
 --
 
 INSERT INTO `multivolumebook` (`id`, `title`, `author`, `price`, `language`, `book_condition`, `used_condition`, `quantity`, `category`, `subcategory`, `pages`) VALUES
-(1, 'The Lord of the Rings', 'J.R.R. Tolkien', '75.00', 'english', 'new', 'very good', 5, 1, 3, 1216),
-(2, 'Foundation', 'Isaac Asimov', '50.00', 'english', 'new', 'very good', 6, 1, 2, 700),
-(3, 'A Song of Ice and Fire', 'George R.R. Martin', '90.00', 'english', 'new', 'very good', 4, 1, 3, 2000);
+(1, 'The Lord of the Rings', 'J.R.R. Tolkien', 75.00, 'english', 'new', 'very good', 5, 1, 3, 1216),
+(2, 'Foundation', 'Isaac Asimov', 50.00, 'english', 'new', 'very good', 6, 1, 2, 700),
+(3, 'A Song of Ice and Fire', 'George R.R. Martin', 90.00, 'english', 'new', 'very good', 4, 1, 3, 2000);
 
 -- --------------------------------------------------------
 
@@ -121,10 +121,10 @@ INSERT INTO `multivolumebook` (`id`, `title`, `author`, `price`, `language`, `bo
 CREATE TABLE `multivolumebookvolumes` (
   `multi_volume_book_id` int(11) NOT NULL,
   `book_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Zrzut danych tabeli `multivolumebookvolumes`
+-- Dumping data for table `multivolumebookvolumes`
 --
 
 INSERT INTO `multivolumebookvolumes` (`multi_volume_book_id`, `book_id`) VALUES
@@ -149,9 +149,11 @@ INSERT INTO `multivolumebookvolumes` (`multi_volume_book_id`, `book_id`) VALUES
 CREATE TABLE `order` (
   `orderId` int(11) NOT NULL,
   `customerId` int(11) NOT NULL,
+  `shippingDetailsId` int(11) NOT NULL,
+  `paymentDetailsId` int(11) NOT NULL,
   `orderDate` datetime NOT NULL,
   `totalAmount` decimal(10,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -166,7 +168,39 @@ CREATE TABLE `orderitem` (
   `multiVolumeBookId` int(11) DEFAULT NULL,
   `quantity` int(11) NOT NULL,
   `price` decimal(10,2) NOT NULL
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `paymentdetails`
+--
+
+CREATE TABLE `paymentdetails` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `card_number` varchar(20) NOT NULL,
+  `expiration_date` varchar(5) NOT NULL,
+  `cvv` varchar(4) NOT NULL,
+  `cardholder_name` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `shippingdetails`
+--
+
+CREATE TABLE `shippingdetails` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `surname` varchar(255) NOT NULL,
+  `street` varchar(255) NOT NULL,
+  `city` varchar(255) NOT NULL,
+  `postal_code` varchar(20) NOT NULL,
+  `country` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -177,10 +211,10 @@ CREATE TABLE `orderitem` (
 CREATE TABLE `subcategory` (
   `id` int(11) NOT NULL,
   `name` varchar(150) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Zrzut danych tabeli `subcategory`
+-- Dumping data for table `subcategory`
 --
 
 INSERT INTO `subcategory` (`id`, `name`) VALUES
@@ -206,10 +240,10 @@ CREATE TABLE `users` (
   `username` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Zrzut danych tabeli `users`
+-- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`) VALUES
@@ -253,7 +287,9 @@ ALTER TABLE `multivolumebookvolumes`
 --
 ALTER TABLE `order`
   ADD PRIMARY KEY (`orderId`),
-  ADD KEY `customer` (`customerId`);
+  ADD UNIQUE KEY `customerId` (`customerId`),
+  ADD UNIQUE KEY `shippingId` (`shippingDetailsId`),
+  ADD UNIQUE KEY `paymentId` (`paymentDetailsId`) USING BTREE;
 
 --
 -- Indeksy dla tabeli `orderitem`
@@ -263,6 +299,20 @@ ALTER TABLE `orderitem`
   ADD KEY `orderId` (`orderId`),
   ADD KEY `bookId` (`bookId`),
   ADD KEY `multiVolumeBookId` (`multiVolumeBookId`);
+
+--
+-- Indeksy dla tabeli `paymentdetails`
+--
+ALTER TABLE `paymentdetails`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indeksy dla tabeli `shippingdetails`
+--
+ALTER TABLE `shippingdetails`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indeksy dla tabeli `subcategory`
@@ -277,89 +327,115 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT dla zrzuconych tabel
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT dla tabeli `book`
+-- AUTO_INCREMENT for table `book`
 --
 ALTER TABLE `book`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
--- AUTO_INCREMENT dla tabeli `category`
+-- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT dla tabeli `multivolumebook`
+-- AUTO_INCREMENT for table `multivolumebook`
 --
 ALTER TABLE `multivolumebook`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT dla tabeli `order`
+-- AUTO_INCREMENT for table `order`
 --
 ALTER TABLE `order`
   MODIFY `orderId` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT dla tabeli `orderitem`
+-- AUTO_INCREMENT for table `orderitem`
 --
 ALTER TABLE `orderitem`
   MODIFY `orderItemId` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT dla tabeli `subcategory`
+-- AUTO_INCREMENT for table `paymentdetails`
+--
+ALTER TABLE `paymentdetails`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `shippingdetails`
+--
+ALTER TABLE `shippingdetails`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `subcategory`
 --
 ALTER TABLE `subcategory`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT dla tabeli `users`
+-- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- Ograniczenia dla zrzutów tabel
+-- Constraints for dumped tables
 --
 
 --
--- Ograniczenia dla tabeli `book`
+-- Constraints for table `book`
 --
 ALTER TABLE `book`
   ADD CONSTRAINT `book_ibfk_1` FOREIGN KEY (`category`) REFERENCES `category` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `book_ibfk_2` FOREIGN KEY (`subcategory`) REFERENCES `subcategory` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Ograniczenia dla tabeli `multivolumebook`
+-- Constraints for table `multivolumebook`
 --
 ALTER TABLE `multivolumebook`
   ADD CONSTRAINT `multivolumebook_ibfk_1` FOREIGN KEY (`subcategory`) REFERENCES `subcategory` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `multivolumebook_ibfk_2` FOREIGN KEY (`category`) REFERENCES `category` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Ograniczenia dla tabeli `multivolumebookvolumes`
+-- Constraints for table `multivolumebookvolumes`
 --
 ALTER TABLE `multivolumebookvolumes`
   ADD CONSTRAINT `multivolumebookvolumes_ibfk_1` FOREIGN KEY (`multi_volume_book_id`) REFERENCES `multivolumebook` (`id`),
   ADD CONSTRAINT `multivolumebookvolumes_ibfk_2` FOREIGN KEY (`book_id`) REFERENCES `book` (`id`);
 
 --
--- Ograniczenia dla tabeli `order`
+-- Constraints for table `order`
 --
 ALTER TABLE `order`
-  ADD CONSTRAINT `order_ibfk_1` FOREIGN KEY (`customerId`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `order_ibfk_1` FOREIGN KEY (`customerId`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `order_ibfk_2` FOREIGN KEY (`paymentDetailsId`) REFERENCES `paymentdetails` (`id`),
+  ADD CONSTRAINT `order_ibfk_3` FOREIGN KEY (`shippingDetailsId`) REFERENCES `shippingdetails` (`id`);
 
 --
--- Ograniczenia dla tabeli `orderitem`
+-- Constraints for table `orderitem`
 --
 ALTER TABLE `orderitem`
   ADD CONSTRAINT `orderitem_ibfk_1` FOREIGN KEY (`orderId`) REFERENCES `order` (`orderId`),
   ADD CONSTRAINT `orderitem_ibfk_2` FOREIGN KEY (`bookId`) REFERENCES `book` (`id`),
   ADD CONSTRAINT `orderitem_ibfk_3` FOREIGN KEY (`multiVolumeBookId`) REFERENCES `multivolumebook` (`id`);
+
+--
+-- Constraints for table `paymentdetails`
+--
+ALTER TABLE `paymentdetails`
+  ADD CONSTRAINT `paymentdetails_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Constraints for table `shippingdetails`
+--
+ALTER TABLE `shippingdetails`
+  ADD CONSTRAINT `shippingdetails_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
