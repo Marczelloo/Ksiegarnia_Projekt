@@ -408,6 +408,26 @@ class DB_Handler {
          })
       }
 
+      async placeOrder(user, items) {
+
+      } 
+
+      async addOrder(user, times) {
+
+      }
+
+      async getOrders(user) {
+
+      }
+
+      async addShippingDetails() {
+
+      }
+
+      async addPaymentDetails() {
+         
+      }
+
 
 }
 

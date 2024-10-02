@@ -621,8 +621,8 @@ input::placeholder {
    background-color: var(--secondary);
    border-radius: .5rem;
    
-   padding: .5rem;
-   align-self: flex-start; /* This will make the flex container take as much space as it needs in height */
+   padding: .75rem;
+   align-self: flex-start;
 }
 
 .checkout_container_right > p {
@@ -702,6 +702,14 @@ input::placeholder {
 
    text-align: center;
    font-size: 1.5rem;
+   font-weight: 600;
+   color: red;
+}
+
+.checkout_container_left_shipping_errorText, .checkout_container_left_payment_errorText,
+.checkout_container_left_agreement_errorText {
+   display: none;
+   font-size: 1rem;
    font-weight: 600;
    color: red;
 }

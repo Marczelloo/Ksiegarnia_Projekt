@@ -12,9 +12,6 @@ router.post('/', (req, res) => {
          }
       })
       res.json({ success: true, message: 'User logged out successfully' });
-
-      // res.clearCookie('user');
-      // res.status(200).send({ success: true });
    }
    catch(error)
    {

@@ -13,7 +13,7 @@
       <section class="container">
          <% if (logged && items.length > 0) { %>
             <h1 class="checkout_header"> Checkout </h1>
-            <form class="checkout_container">
+            <form class="checkout_container" id="checkout">
                <div class="checkout_container_left">
                   <div class="checkout_container_left_shipping">
                      <p> Shipping address </p>
@@ -29,6 +29,7 @@
                      <label for="country"> Country </label>
                      <input type="text" id="postal_code" required>
                      <input type="text" id="country" required>
+                     <p class="checkout_container_left_shipping_errorText"> </p>
                   </div>
                   <div class="checkout_container_left_payment">
                      <p> Payment method </p>
@@ -40,10 +41,12 @@
                      <label for="cardholder_name"> Cardholder name </label>
                      <input type="text" id="cvv" required>
                      <input type="text" id="cardholder_name" required>
+                     <p class="checkout_container_left_payment_errorText"> </p>
                   </div>
                   <div class="checkout_container_left_agreement">
                      <input type="checkbox" id="agreement" required>
                      <label for="agreement"> I agree to the terms and conditions </label>
+                     <p class="checkout_container_left_agreement_error"> </p>
                   </div>
                </div>
                <div class="checkout_container_right">
@@ -74,7 +77,88 @@
       <%- include('partials/footer') %>
    </div>
    <script>
-      
+      document.addEventListener('DOMContentLoaded', () => {
+         const infoBox = document.querySelector('.info-box_container');
+         const infoBoxText = document.querySelector('.info-box_text');
+
+         const shippingErrorInfo = document.querySelector('.checkout_container_left_shipping_errorText');
+         const paymentErrorInfo = document.querySelector('.checkout_container_left_payment_errorText');
+         const agreementErrorInfo = document.querySelector('.checkout_container_left_agreement_error');
+
+         document.getElementById('checkout').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const surname = document.getElementById('surname').value;
+            const street = document.getElementById('street').value;
+            const city = document.getElementById('city').value;
+            const postalCode = document.getElementById('postal_code').value;
+            const country = document.getElementById('country').value;
+            const cardNumber = document.getElementById('card_number').value;
+            const expirationDate = document.getElementById('expiration_date').value;
+            const cvv = document.getElementById('cvv').value;
+            const cardholderName = document.getElementById('cardholder_name').value;
+            const agreement = document.getElementById('agreement').checked;
+
+            if (!name || !surname || !street || !city || !postalCode || !country || !cardNumber || !expirationDate || !cvv || !cardholderName || !agreement) {
+               shippingErrorInfo.innerText = 'Please fill all fields';
+               return;
+            }
+
+            if (cardNumber.length !== 16) {
+               infoBoxText.innerText = 'Invalid card number';
+               infoBox.style.display = 'block';
+               return;
+            }
+
+            if (expirationDate.length !== 5) {
+               infoBoxText.innerText = 'Invalid expiration date';
+               infoBox.style.display = 'block';
+               return;
+            }
+
+            if (cvv.length !== 3) {
+               infoBoxText.innerText = 'Invalid CVV';
+               infoBox.style.display = 'block';
+               return;
+            }
+
+            if (!agreement) {
+               shippingErrorInfo.innerText = 'You need to agree to the terms and conditions';
+               return;
+            }
+
+            try 
+            {
+               const response = await fetch('/api/placeOrder', {
+                  method: 'POST',
+                  headers: {
+                     'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                     name,
+                     surname,
+                     street,
+                     city,
+                     postalCode,
+                     country,
+                     cardNumber,
+                     expirationDate,
+                     cvv,
+                     cardholderName
+                  })
+               });
+            }
+            catch (error)
+            {
+               infoBoxText.innerText = 'An error occurred';
+               infoBox.classList.remove('info-box_hidden');
+                setTimeout(() => {
+                    infoBox.classList.add('info-box_hidden');
+                }, 4000);
+            }
+         })
+      });
    </script>
 </body>
 </html>

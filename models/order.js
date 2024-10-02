@@ -1,16 +1,11 @@
 class Order {
-      constructor(id, user, cart, date, total, discountTotal, status) {
-            this.id = id;
+      constructor(user, cart, date, total, discountTotal, status) {
             this.user = user;
             this.cart = cart;
             this.date = date;
             this.total = total;
             this.discountTotal = discountTotal;
             this.status = status;
-      }
-
-      get_id() {
-            return this.id;
       }
 
       get_user() {
@@ -35,10 +30,6 @@ class Order {
 
       get_status() {
             return this.status;
-      }
-
-      set_id(id) {
-            this.id = id;
       }
 
       set_user(user) {
