@@ -1,5 +1,7 @@
 const { Book, MultiVolumeBook } = require('./Book');
 const DB = require('./db');
+const PaymentDetails = require('./paymentDetails');
+const ShippingDetails = require('./shppingDetails');
 const User = require('./user');
 
 class DB_Handler {
@@ -408,27 +410,75 @@ class DB_Handler {
          })
       }
 
-      async placeOrder(user, items) {
-
-      } 
-
-      async addOrder(user, times) {
-
-      }
-
       async getOrders(user) {
 
       }
 
-      async addShippingDetails() {
+      async placeOrder(user, shippingDetails, paymentDetails, cartItems, date, total) {
+         if(!user) throw new Error('User is missing');
+         if(!shippingDetails) throw new Error('Shipping details are missing');
+         if(!paymentDetails) throw new Error('Payment details are missing');
+         if(!cartItems) throw new Error('Cart items are missing');
+         if(!date) throw new Error('Date is missing');
+         if(!total) throw new Error('Total is missing');
 
-      }
+         if(!(user instanceof User)) throw new Error('User must be an instance of User');
+         if(!(shippingDetails instanceof ShippingDetails)) throw new Error('Shipping details must be an instance of ShippingDetails');
+         if(!(paymentDetails instanceof PaymentDetails)) throw new Error('Payment details must be an instance of PaymentDetails');
+         if(!Array.isArray(cartItems)) throw new Error('Cart items must be an array');
+         if(typeof date !== 'string') throw new Error('Date must be a string');
+         if(typeof total !== 'number') throw new Error('Total must be a number');
 
-      async addPaymentDetails() {
+         if(date.length < 3) throw new Error('Date is too short');
+         if(date.length > 50) throw new Error('Date is too long');
          
-      }
+         const userId = this.db.connection.query('SELECT id FROM users WHERE email = ?', [user.email], (error, results) => {
+            if(error) throw new Error('Error fetching user ID');
+            return results[0].id;
+         });
+
+         const shippingDetailsId = this.db.connection.query('INSERT INTO shipping_details (name, surname, street, city, postal_code, country) VALUES (?, ?, ?, ?, ?, ?)', [shippingDetails.name, shippingDetails.surname, shippingDetails.street, shippingDetails.city, shippingDetails.postalCode, shippingDetails.country], (error, results) => {
+            if(error) throw new Error('Error inserting shipping details');
+            return results.insertId;
+         });
+
+         const paymentDetailsId = this.db.connection.query('INSERT INTO payment_details (card_number, expiration_date, cvv, cardholder_name) VALUES (?, ?, ?, ?)', [paymentDetails.cardNumber, paymentDetails.expirationDate, paymentDetails.cvv, paymentDetails.cardholderName], (error, results) => {
+            if(error) throw new Error('Error inserting payment details');
+            return results.insertId;
+         });
+
+         const orderId = this.db.connection.query('INSERT INTO orders (customerId, shippingDetialsId, paymentDetailsId, orderDate, totalAmount) VALUES (?, ?, ?, ?, ?)', [userId, shippingDetailsId, paymentDetailsId, date, total], (error, results) => {
+            if(error) throw new Error('Error inserting order');
+            return results.insertId;
+         });
+
+         const multiVolumeBooks = [];
+         const books = []; 
+
+         for (let i = 0; i < cartItems.length; i++) {
+            this.getBookByTitle(cartItems[i].title)
+            .then(book => {
+               books.push(books.push(book));
+            })
+            .catch(error => {
+               if(error.message === 'Book not found') {
+                  this.getMultiVolumeBookByTitle(cartItems[i].title)
+                  .then(multiVolumeBook => {
+                     multiVolumeBooks.push(multiVolumeBook);
+                  })
+                  .catch(error => {
+                     console.error(error);
+                     throw new Error('Error fetching book');
+                  });
+               }
+            });
+         }
+
+         //TODO: add inserting items into orderItems table and updating book quantities
 
 
+
+      } 
 }
 
 module.exports = DB_Handler;

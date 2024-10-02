@@ -22,7 +22,12 @@ class CartItem {
 class Cart {
    constructor(items) {
       this.items = items || [];
-  }
+   }
+
+   getItems() 
+   {
+      return this.items;
+   }
 
    addItem(item) 
    {
