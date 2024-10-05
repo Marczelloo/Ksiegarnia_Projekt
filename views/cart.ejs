@@ -15,7 +15,7 @@
          <div class="cart_container">
             <div class="cart_container_left">
                <% if (items.length != 0 && logged) { %>
-                  <ul>
+                  <ul id="items_container">
                      <% items.forEach((element, index) => { %>
                         <% if (index === items.length - 1) { %>
                            <li class="cart_item">
@@ -38,9 +38,9 @@
             <div class="cart_container_right">
                <div class="cart_container_right_total">
                   <p> Total price </p>
-                  <p class="cart_container_right_total_grayed"> Items: <%= cartPrice ? cartPrice : 0 %> &euro; </p>
-                  <p class="cart_container_right_total_grayed"> Discounts: <%= discountPrice ? discountPrice : 0 %> &euro; </p>
-                  <p class="cart_container_right_total_price"> Total: <%= cartTotal ? cartTotal : 0 %> &euro; </p>
+                  <p class="cart_container_right_total_grayed" id="items_price"> Items: <%= cartPrice ? cartPrice : 0 %> &euro; </p>
+                  <p class="cart_container_right_total_grayed" id="discount"> Discounts: <%= discountPrice ? discountPrice : 0 %> &euro; </p>
+                  <p class="cart_container_right_total_price" id="total_price"> Total: <%= cartTotal ? cartTotal : 0 %> &euro; </p>
                     <button id="place_order" <%= logged && items.length != 0 ? '' : 'disabled' %>> Checkout</button>
                </div>
             </div>
@@ -53,6 +53,12 @@
    document.addEventListener("DOMContentLoaded", () => {
       const infoBox = document.querySelector('.info-box_container');
       const infoBoxText = document.querySelector('.info-box_text');
+
+      const itemsPrice = document.getElementById('items_price');
+      const discount = document.getElementById('discount');
+      const totalPrice = document.getElementById('total_price');
+
+      const items_container = document.getElementById('items_container');
 
       const cartItems = document.querySelectorAll('.cart_item');
       cartItems.forEach(item => {
@@ -78,6 +84,14 @@
             .then(data => {
                if(data.success)
                {
+                  const newPrice = parseFloat(data.cartPrice).toFixed(2);
+                  const newDiscount = parseFloat(data.discountPrice).toFixed(2);
+                  const newTotal = parseFloat(data.cartTotal).toFixed(2);
+
+                  itemsPrice.innerHTML = `Items: ${newPrice} &euro;`;
+                  discount.innerHTML = `Discounts: ${newDiscount} &euro;`;
+                  totalPrice.innerHTML = `Total: ${newTotal} &euro;`;
+
                   quantity.textContent = newQuantity;
 
                   infoBoxText.textContent = data.message;
@@ -145,6 +159,20 @@
                if(data.success)
                {
                   item.remove();
+
+                  const newPrice = parseFloat(data.cartPrice).toFixed(2);
+                  const newDiscount = parseFloat(data.discountPrice).toFixed(2);
+                  const newTotal = parseFloat(data.cartTotal).toFixed(2);
+
+                  const firstElementWithClass = items_container.querySelector('.cart_item_separator');
+                  if (firstElementWithClass) 
+                  {
+                     firstElementWithClass.remove();
+                  }
+
+                  itemsPrice.innerHTML = `Items: ${newPrice} &euro;`;
+                  discount.innerHTML = `Discounts: ${newDiscount} &euro;`;
+                  totalPrice.innerHTML = `Total: ${newTotal} &euro;`;
 
                   infoBoxText.textContent = data.message;
                   infoBox.classList.add('info-box_success');

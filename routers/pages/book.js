@@ -7,9 +7,6 @@ router.get('/:title/:multivolumeBook', (req, res) => {
    const bookTitle = req.params.title;
    const isMultiVolumeBook = req.params.multivolumeBook === 'true' ? true : false;
 
-   console.log("Book title: " + bookTitle);
-   console.log("Is multi volume book: " + isMultiVolumeBook);
-
    if(isMultiVolumeBook)
    {
       db_handler.getMultiVolumeBookByTitle(bookTitle)

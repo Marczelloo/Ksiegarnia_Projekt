@@ -60,6 +60,10 @@ class User {
       return this.cart.appyDiscount();
    }
 
+   clear_cart() {
+      this.cart = new Cart();
+   }
+
    static fromSession(sessionUser) {
       const cart = Cart.fromSession(sessionUser.cart);
       return new User(sessionUser.username, sessionUser.email, sessionUser.password, cart);

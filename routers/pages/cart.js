@@ -20,9 +20,9 @@ router.get('/', (req, res) => {
       } 
       else 
       {
-         const cartPrice = user.calculate_cart_total();
-         const discountPrice = cartPrice - user.apply_discount();
-         const cartTotal = user.apply_discount();
+         const cartPrice = parseFloat(user.calculate_cart_total()).toFixed(2);
+         const discountPrice = parseFloat(cartPrice - user.apply_discount()).toFixed(2);
+         const cartTotal = parseFloat(user.apply_discount()).toFixed(2);
 
          res.render('cart', { 
             items: user.cart.items, 

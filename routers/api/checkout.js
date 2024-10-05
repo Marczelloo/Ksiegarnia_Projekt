@@ -28,6 +28,8 @@ router.post('/', (req, res) => {
 
          db_handler.placeOrder(user, shippingDetails, paymentDetails, cartItems, date, total)
          .then(() => {
+            user.clear_cart();
+            req.session.user = user.toJSON();
             res.status(200).send({ success: true, message: 'Order placed successfully' });
          })
          .catch(error => {

@@ -35,7 +35,6 @@ router.post('/', (req, res) => {
                if (error.message == "Book not found") {
                   db_handler.getMultiVolumeBookByTitle(bookTitle)
                      .then(book => {
-                        console.log(book)
                         const cartItem = new CartItem(book, 1);
 
                         const user = User.fromSession(req.session.user);

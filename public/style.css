@@ -4,6 +4,7 @@
    --primary: #1fd17b;
    --secondary: #12767d;
    --acent: #1995ae;
+   --error: rgb(236, 95, 95);
 }
 
 * {
@@ -483,13 +484,13 @@ html, body {
    padding: .25rem;
 
    border-radius: 50%;
-   border: 2px solid red;
+   border: 2px solid var(--error);
 
    cursor: pointer;
 }
 
 .cart_item > button > svg {
-   stroke: red;
+   stroke: var(--error);
 }
 
 .cart_container_right_total {
@@ -559,12 +560,18 @@ html, body {
 }
 
 .checkout_container_left {
-   display: flex;
-   flex-direction: column;
-   gap: 2rem;
-
    padding-right: 1rem;
    border-right: 2px solid var(--primary);
+}
+
+.checkout_container_left_wrapper {
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+
+   border: 2px solid var(--secondary);
+   border-radius: 1rem;
+   background-color: var(--secondary);
 }
 
 input::placeholder {
@@ -577,10 +584,6 @@ input::placeholder {
    column-gap: 1rem;
 
    padding: 1rem;
-
-   border: 2px solid var(--secondary);
-   border-radius: 1rem;
-   background-color: var(--secondary);
 }
 
 .checkout_container_left_agreement {
@@ -703,7 +706,7 @@ input::placeholder {
    text-align: center;
    font-size: 1.5rem;
    font-weight: 600;
-   color: red;
+   color: var(--error);
 }
 
 .checkout_container_left_shipping_errorText, .checkout_container_left_payment_errorText,
@@ -711,5 +714,5 @@ input::placeholder {
    display: none;
    font-size: 1rem;
    font-weight: 600;
-   color: red;
+   color: var(--error);
 }

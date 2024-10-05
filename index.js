@@ -60,6 +60,7 @@ let apiRoutes = [
    { path: '/api/checkLogedState', route: require('./routers/api/checkLogedState.js') },
    { path: '/api/addToCart', route: require('./routers/api/addToCart.js') },
    { path: '/api/cart', route: require('./routers/api/cart.js') },
+   { path: '/api/checkout', route: require('./routers/api/checkout.js') },
 ];
 
 pageRoutes.forEach(route => {

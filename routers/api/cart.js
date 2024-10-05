@@ -8,17 +8,17 @@ router.post('/update', (req, res) => {
       const user = User.fromSession(req.session.user);
       const { title, quantity } = req.body;
 
-      console.log(title, quantity);
-      console.log(title);
-      console.log("session", req.session.user.cart.items)
-      console.log("object user", user.cart.items);
-
       const cartItem = user.cart.items.find(item => item.book.title == title);
       if(cartItem)
       {
          cartItem.quantity = quantity;
+
+         const cartPrice = user.calculate_cart_total();
+         const discountPrice = cartPrice - user.apply_discount();
+         const cartTotal = user.apply_discount();
+
          req.session.user = user.toJSON();
-         res.json({ success: true, message: "Cart updated successfully!" });
+         res.json({ success: true, message: "Cart updated successfully!", cartPrice, discountPrice, cartTotal });
       }
       else
       {
@@ -41,8 +41,13 @@ router.post('/remove', (req, res) => {
       if(cartItemIndex !== -1)
       {
          user.cart.items.splice(cartItemIndex, 1);
+
+         const cartPrice = user.calculate_cart_total();
+         const discountPrice = cartPrice - user.apply_discount();
+         const cartTotal = user.apply_discount();
+
          req.session.user = user.toJSON();
-         res.json({ success: true, message: "Book removed from cart successfully!" });
+         res.json({ success: true, message: "Book removed from cart successfully!", cartPrice, discountPrice, cartTotal });
       }
       else
       {

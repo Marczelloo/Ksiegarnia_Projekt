@@ -400,8 +400,6 @@ class DB_Handler {
                else
                {
                   if(results.length === 0) reject(new Error('User not found'));
-
-                  console.log(results[0]);
                   
                   const user = new User(results[0].username, results[0].email, results[0].password);
                   resolve(user);
@@ -431,53 +429,134 @@ class DB_Handler {
 
          if(date.length < 3) throw new Error('Date is too short');
          if(date.length > 50) throw new Error('Date is too long');
-         
-         const userId = this.db.connection.query('SELECT id FROM users WHERE email = ?', [user.email], (error, results) => {
-            if(error) throw new Error('Error fetching user ID');
-            return results[0].id;
-         });
 
-         const shippingDetailsId = this.db.connection.query('INSERT INTO shipping_details (name, surname, street, city, postal_code, country) VALUES (?, ?, ?, ?, ?, ?)', [shippingDetails.name, shippingDetails.surname, shippingDetails.street, shippingDetails.city, shippingDetails.postalCode, shippingDetails.country], (error, results) => {
-            if(error) throw new Error('Error inserting shipping details');
-            return results.insertId;
-         });
-
-         const paymentDetailsId = this.db.connection.query('INSERT INTO payment_details (card_number, expiration_date, cvv, cardholder_name) VALUES (?, ?, ?, ?)', [paymentDetails.cardNumber, paymentDetails.expirationDate, paymentDetails.cvv, paymentDetails.cardholderName], (error, results) => {
-            if(error) throw new Error('Error inserting payment details');
-            return results.insertId;
-         });
-
-         const orderId = this.db.connection.query('INSERT INTO orders (customerId, shippingDetialsId, paymentDetailsId, orderDate, totalAmount) VALUES (?, ?, ?, ?, ?)', [userId, shippingDetailsId, paymentDetailsId, date, total], (error, results) => {
-            if(error) throw new Error('Error inserting order');
-            return results.insertId;
-         });
-
-         const multiVolumeBooks = [];
-         const books = []; 
-
-         for (let i = 0; i < cartItems.length; i++) {
-            this.getBookByTitle(cartItems[i].title)
-            .then(book => {
-               books.push(books.push(book));
-            })
-            .catch(error => {
-               if(error.message === 'Book not found') {
-                  this.getMultiVolumeBookByTitle(cartItems[i].title)
-                  .then(multiVolumeBook => {
-                     multiVolumeBooks.push(multiVolumeBook);
-                  })
-                  .catch(error => {
-                     console.error(error);
-                     throw new Error('Error fetching book');
-                  });
+         const userId = await new Promise((resolve, reject) => {
+            this.db.connection.query('SELECT id FROM users WHERE email = ?', [user.email], (error, results) => {
+               if(error)
+               {
+                  if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                  else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                  else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                  else reject(new Error('An unknown error occurred.' + error));
                }
+               resolve(results[0].id);               
             });
+         })
+
+         const shippingDetailsId = await new Promise((resolve, reject) => {
+            this.db.connection.query('INSERT INTO shippingdetails (user_id, name, surname, street, city, postal_code, country) VALUES (?, ?, ?, ?, ?, ?, ?)', [userId, shippingDetails.name, shippingDetails.surname, shippingDetails.street, shippingDetails.city, shippingDetails.postalCode, shippingDetails.country], (error, results) => {
+               if(error) 
+               {
+                  if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                  else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                  else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                  else reject(new Error('An unknown error occurred.' + error));
+               }
+               resolve(results.insertId);
+            });
+         });
+
+         const paymentDetailsId = await new Promise((resolve, reject) => {
+            this.db.connection.query('INSERT INTO paymentdetails (user_id, card_number, expiration_date, cvv, cardholder_name) VALUES (?, ?, ?, ?, ?)', [userId, paymentDetails.cardNumber, paymentDetails.expirationDate, paymentDetails.cvv, paymentDetails.cardholderName], (error, results) => {
+               if(error)
+               {
+                  if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                  else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                  else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                  else reject(new Error('An unknown error occurred.' + error));
+               }
+               resolve(results.insertId);
+            });
+         });
+
+         const orderId = await new Promise((resolve, reject) => {
+            this.db.connection.query(
+               'INSERT INTO orders (customerId, shippingDetailsId, paymentDetailsId, orderDate, totalAmount) VALUES (?, ?, ?, ?, ?)',
+               [userId, shippingDetailsId, paymentDetailsId, date, total],
+               (error, results) => {
+                  if (error) {
+                     console.error('Error inserting into orders table:', error.message, error.code);
+                     return reject(new Error('Failed to create the order: ' + error.message));
+                  }
+                  
+                  if (!results || !results.insertId) {
+                     return reject(new Error('No insertId returned after inserting the order.'));
+                  }
+                  
+                  resolve(results.insertId);
+               }
+            );
+         });
+
+         for(let i = 0; i < cartItems.length; i++)
+         {
+            try
+            {
+               await this.db.connection.query('SELECT id FROM book WHERE title = ?', [cartItems[i].book.title], 
+               async (error, results) => {
+                  if(error)
+                  {
+                     if (error.code === 'ER_BAD_DB_ERROR') throw new Error('Database does not exist.');
+                     else if (error.code === 'ER_PARSE_ERROR') throw new Error('SQL query syntax error.');
+                     else if (error.code === 'ER_ACCESS_DENIED_ERROR') throw new Error('Access denied for user to database.');
+                     else throw new Error('An unknown error occurred.' + error);
+                  }
+
+                  if(results.length === 0)
+                  {
+                     try
+                     {
+                        await this.db.connection.query('SELECT id FROM multivolumebook WHERE title = ?', [cartItems[i].book.title],
+                        (error, results) => {
+                           if(error)
+                           {
+                              if (error.code === 'ER_BAD_DB_ERROR') throw new Error('Database does not exist.');
+                              else if (error.code === 'ER_PARSE_ERROR') throw new Error('SQL query syntax error.');
+                              else if (error.code === 'ER_ACCESS_DENIED_ERROR') throw new Error('Access denied for user to database.');
+                              else throw new Error('An unknown error occurred.' + error);
+                           }
+
+                           if(results.length === 0) throw new Error('Book not found');
+                           else
+                           {
+                              this.db.connection.query('INSERT INTO orderItem (orderId, bookId, multiVolumeBookId, quantity, price) VALUES(?, ?, ?, ?, ?)', [orderId, null, results[0].id, cartItems[i].quantity, cartItems[i].book.price], (error, results) => {
+                                 if(error)
+                                 {
+                                    if (error.code === 'ER_BAD_DB_ERROR') throw new Error('Database does not exist.');
+                                    else if (error.code === 'ER_PARSE_ERROR') throw new Error('SQL query syntax error.');
+                                    else if (error.code === 'ER_ACCESS_DENIED_ERROR') throw new Error('Access denied for user to database.');
+                                    else throw new Error('An unknown error occurred.' + error);
+                                 }
+                              });
+                           }
+                        })
+                     }
+                     catch(error)
+                     {
+                        console.error(error);
+                        throw new Error('Error inserting into orderItem table: ' + error.message);
+                     }
+                  }
+                  else
+                  {
+                     this.db.connection.query('INSERT INTO orderItem (orderId, bookId, multiVolumeBookId, quantity, price) VALUES(?, ?, ?, ?, ?)', [orderId, results[0].id, null, cartItems[i].quantity, cartItems[i].book.price], (error, results) => {
+                        if(error)
+                        {
+                           if (error.code === 'ER_BAD_DB_ERROR') throw new Error('Database does not exist.');
+                           else if (error.code === 'ER_PARSE_ERROR') throw new Error('SQL query syntax error.');
+                           else if (error.code === 'ER_ACCESS_DENIED_ERROR') throw new Error('Access denied for user to database.');
+                           else throw new Error('An unknown error occurred.' + error);
+                        }
+                     });
+                  }
+               })
+            }
+            catch(error)
+            {
+               console.error(error);
+               throw new Error('Error inserting into orderItem table: ' + error.message);
+            }
          }
-
-         //TODO: add inserting items into orderItems table and updating book quantities
-
-
-
       } 
 }
 
