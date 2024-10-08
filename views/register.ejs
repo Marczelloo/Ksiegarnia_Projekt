@@ -49,6 +49,13 @@
             return;
          }
 
+         if(username.length < 8) 
+         {
+            errorInfoText.style.display = 'block';
+            errorInfoText.innerText = 'Username must have at least 8 characters!';
+            return;
+         }
+
          if (!validateEmail(email)) {
             errorInfoText.style.display = 'block';
             errorInfoText.innerText = 'Invalid email';

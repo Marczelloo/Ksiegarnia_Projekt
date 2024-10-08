@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Bookworms </title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+   <div class="wrapper">
+      <%- include('partials/header', { logged: true }) %>
+      <%- include('partials/infoBox') %>
+      <section class="container">
+         <h1 class="profile_header"> Profile </h1>
+         <div class="profile_container">
+            <div class="profile_info">
+               <h2> Your information </h2>
+               <p> <span>Email: </span><%= user.email %> </p>
+               <p> <span>Username: </span><%= user.username %> </p>
+            </div>
+            <div class="cart_item_separator"> </div>
+            <div class="profile_update">
+               <h2> Update information </h2>
+               <label> Email  </label>
+               <form method="POST" id="changeEmail">
+                  <input type="email" name="email" id="email">
+                  <button type="submit"> Change </button>
+               </form>
+               <label> Username </label>
+               <form method="POST" id="changeUsername">
+                  <input type="text" name="username" id="username">
+                  <button type="submit"> Change </button>
+               </form>
+               <label> Password </label>
+               <form method="POST" id="changePassword">
+                  <input type="password" name="password" id="password">
+                  <input type="password" name="repeat_password" id="repeat_password">
+                  <button type="submit"> Change </button>
+               </form>
+               <p class="profile_update_error_message" id="changeErrorText"> </p>
+            </div>
+            <div class="cart_item_separator"> </div>
+            <div class="profile_orders">
+               <h2> Your orders </h2>
+               <% if (orders.length === 0) { %>
+               <p> You have no orders </p>
+               <% } else { %>
+               <ul>
+                  <% orders.forEach(order => { %>
+                  <li>
+                     <p> <span>Order number: </span><%= order.id %> </p>
+                     <p> <span>Date: </span><%= order.date %> </p>
+                     <p> <span>Total price: </span><%= order.total %> &euro; </p>
+                     <p> <span>Books: </span></p>
+                     <div class="profile_orders_books">
+                        <% order.books.forEach((book, index) => { %>
+                           <% if(index === order.books.length - 1) { %>
+                              <div class="profile_orders_books_item">
+                                 <img src="/assets/images/book_placeholder_2.png" alt="book icon" />
+                                 <p> <%= book.title %> </p>
+                                 <p> <%= book.author %> </p>
+                                 <p> <%= book.language %> </p>
+                                 <p> <%= book.category %> </p>
+                                 <p> <%= book.subcategory %> </p>
+                                 <p> <%= book.pages %> pp. </p>
+                              </div>
+                           <% } else { %>
+                              <div class="profile_orders_books_item">
+                                 <img src="/assets/images/book_placeholder_2.png" alt="book icon" />
+                                 <p> <%= book.title %> </p>
+                                 <p> <%= book.author %> </p>
+                                 <p> <%= book.language %> </p>
+                                 <p> <%= book.category %> </p>
+                                 <p> <%= book.subcategory %> </p>
+                                 <p> <%= book.pages %> pp. </p>
+                              </div>
+                              <div class="cart_item_separator"> </div>
+                           <% } %>
+                        <% }) %>
+                        <% if(order.multiVolumeBooks.length !== 0) { %>
+                        <div class="cart_item_separator"> </div>
+                        <% } %>
+                        <% order.multiVolumeBooks.forEach((book, index) => { %>
+                           <% if(index === order.multiVolumeBooks.length - 1) { %>
+                              <div class="profile_orders_books_item">
+                                 <img src="/assets/images/book_placeholder_2.png" alt="book icon" />
+                                 <p> <%= book.title %> </p>
+                                 <p> <%= book.author %> </p>
+                                 <p> <%= book.language %> </p>
+                                 <p> <%= book.category %> </p>
+                                 <p> <%= book.subcategory %> </p>
+                                 <p> <%= book.pages %> pp. </p>
+                              </div>
+                           <% } else { %>
+                              <div class="profile_orders_books_item">
+                                 <img src="/assets/images/book_placeholder_2.png" alt="book icon" />
+                                 <p> <%= book.title %> </p>
+                                 <p> <%= book.author %> </p>
+                                 <p> <%= book.language %> </p>
+                                 <p> <%= book.category %> </p>
+                                 <p> <%= book.subcategory %> </p>
+                                 <p> <%= book.pages %> pp. </p>
+                              </div>
+                              <div class="cart_item_separator"> </div>
+                           <% } %>
+                        <% }) %>
+                     </div>
+                  </li>
+                  <% }) %>
+               </ul>
+               <% } %>
+            </div>
+         </div>
+      </section>
+      <%- include('partials/footer') %>
+   </div>
+</body>
+<script>
+   const changeErrorText = document.getElementById('changeErrorText');
+
+   const infoBox = document.querySelector('.info-box_container');
+   const infoBoxText = document.querySelector('.info-box_text');   
+
+   function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(String(email).toLowerCase());
+   }
+
+   document.getElementById('changeEmail').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value;
+
+      if(!validateEmail(email))
+      {
+         changeErrorText.style.display = 'block';
+         changeErrorText.innerText = "Invalid email!"
+         return;
+      }  
+
+      const response = await fetch('/api/user/update/email', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json'
+         },
+         body: JSON.stringify({
+            email
+         })
+      })
+
+      const data = await response.json();
+
+      if(data.success)
+      {
+         infoBoxText.textContent = `${data.message}`;
+         infoBox.classList.add('info-box_success');
+         infoBox.classList.remove('info-box_hidden');
+         setTimeout(() => {
+            infoBox.classList.add('info-box_hidden');
+         }, 4000);
+      }
+      else
+      {
+         changeErrorText.style.display = 'block';
+         changeErrorText.innerText = data.error;
+         return
+      }
+
+   })
+
+   document.getElementById('changeUsername').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const username = document.getElementById('username').value;
+
+      if(username.length < 8)
+      {
+         changeErrorText.style.display = 'block';
+         changeErrorText.innerText = "Username must have at least 8 characters!"
+      }
+
+      const response = await fetch('/api/user/update/username', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json'
+         },
+         body: JSON.stringify({
+            username
+         })
+      })
+
+      const data = await response.json();
+
+      if(data.success)
+      {
+         infoBoxText.textContent = `${data.message}`;
+         infoBox.classList.add('info-box_success');
+         infoBox.classList.remove('info-box_hidden');
+         setTimeout(() => {
+            infoBox.classList.add('info-box_hidden');
+         }, 4000);
+      }
+      else
+      {
+         changeErrorText.style.display = 'block';
+         changeErrorText.innerText = data.error;
+         return
+      }
+
+   })
+
+   document.getElementById('changePassword').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const password = document.getElementById('password').value;
+      const password_repeat = document.getElementById('repeat_password').value;
+
+      if(!password_repeat)
+      {
+         changeErrorText.style.display = 'block';
+         changeErrorText.innerText = "Please fill all fields!"
+         return;
+      }
+
+      if(password !== password_repeat)
+      {
+         changeErrorText.style.display = 'block';
+         changeErrorText.innerText = "Passwords does not match!"
+         return
+      }
+
+      const response = await fetch('/api/user/update/password', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json'
+         },
+         body: JSON.stringify({
+            password
+         })
+      })
+
+      const data = await response.json();
+
+      if(data.success)
+      {
+         infoBoxText.textContent = `${data.message}`;
+         infoBox.classList.add('info-box_success');
+         infoBox.classList.remove('info-box_hidden');
+         setTimeout(() => {
+            infoBox.classList.add('info-box_hidden');
+         }, 4000);
+      }
+      else
+      {
+         changeErrorText.style.display = 'block';
+         changeErrorText.innerText = data.error;
+         return
+      }
+   })
+   
+</script>
+</html>

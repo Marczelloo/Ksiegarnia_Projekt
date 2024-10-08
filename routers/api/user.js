@@ -70,4 +70,55 @@ router.post('/logout', (req, res) => {
    }
 });
 
+router.post('/update/email', (req, res) => {
+   const newEmail = req.body.email;
+   const oldEmail = req.session.user.email;
+
+   const db_handler = new DB_Handler();
+   db_handler.updateEmail(newEmail, oldEmail)
+   .then(() => {
+      req.session.user.email = newEmail;
+      res.json({ success: true, error: null, message: "Email changed successfully!"})
+   })
+   .catch(error => {
+      console.error(error);
+      res.json({ success: false, error: error.message})
+   })
+})
+
+router.post('/update/username', (req, res) => {
+   const newUsername = req.body.username;
+   const email = req.session.user.email;
+
+   const db_handler = new DB_Handler();
+   db_handler.updateUsername(newUsername, email)
+   .then(() => {
+      req.session.user.username = newUsername;
+      res.json({ success: true, error: null, message: "Username changed successfully!" })
+   })
+   .catch(error => {
+      console.error(error);
+      res.json({ success: false, error: error.message })
+   })
+
+})
+
+router.post('/update/password', (req, res) => {
+   const newPassword = req.body.password;
+   const email = req.session.user.email;  
+
+   const hashedPassword = md5(newPassword);
+
+   const db_handler = new DB_Handler();
+   db_handler.updatePassword(hashedPassword, email)
+   .then(() => {
+      req.session.user.password = hashedPassword;
+      res.json({ success: true, error: null, message: "Password changed successfully!"})
+   })
+   .catch(error => {
+      console.error(error);
+      res.json({ success: false, error: error.message })
+   })
+})
+
 module.exports = router;

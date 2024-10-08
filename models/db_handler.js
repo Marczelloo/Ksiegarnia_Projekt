@@ -676,11 +676,165 @@ class DB_Handler {
                }
 
                if(results.length === 0) reject(new Error('Book not found'));
-               
+
                resolve(results[0].quantity);
             })
          })
       }
+
+      async getOrderByUser(email) {
+         if (!email) throw new Error('Email is missing');
+         if (typeof email !== 'string') throw new Error('Email must be a string');
+         if (email.length < 5) throw new Error('Email is too short');
+         if (email.length > 50) throw new Error('Email is too long');
+     
+         return new Promise((resolve, reject) => {
+             this.db.connection.query(`
+                  SELECT * FROM orders
+                  INNER JOIN users ON orders.customerId = users.id
+                  WHERE users.email = ?`, [email], async (error, results) => {
+                  if (error) {
+                     if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                     else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                     else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                     else reject(new Error('An unknown error occurred.' + error));
+                     return;
+                  }
+      
+                  try 
+                  {
+                     const orders = await Promise.all(results.map(async row => {
+                           const books = await new Promise((resolve, reject) => {
+                              this.db.connection.query(`
+                                 SELECT book.title, book.author, book.language, book.pages, category.name AS category, subcategory.name AS subcategory, orderItem.quantity
+                                 FROM book
+                                 INNER JOIN orderItem ON book.id = orderItem.bookId
+                                 INNER JOIN category ON category.id = book.category
+                                 INNER JOIN subcategory ON subcategory.id = book.subcategory
+                                 WHERE orderItem.orderId = ?;
+                              `, [row.orderId], (error, results) => {
+                                 if (error) {
+                                       if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                                       else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                                       else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                                       else reject(new Error('An unknown error occurred.' + error));
+                                 } else {
+                                       resolve(results);
+                                 }
+                              });
+                           });
+      
+                           const multiVolumeBooks = await new Promise((resolve, reject) => {
+                              this.db.connection.query(`
+                                 SELECT multivolumebook.title, multivolumebook.author, multivolumebook.language, multivolumebook.pages, category.name AS category, subcategory.name AS subcategory, orderItem.quantity
+                                 FROM multivolumebook
+                                 INNER JOIN orderItem ON multivolumebook.id = orderItem.multiVolumeBookId
+                                 INNER JOIN category ON multivolumebook.category = category.id
+                                 INNER JOIN subcategory ON multivolumebook.subcategory = subcategory.id
+                                 WHERE orderItem.orderId = ?;
+                              `, [row.orderId], (error, results) => {
+                                 if (error) {
+                                       if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                                       else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                                       else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                                       else reject(new Error('An unknown error occurred.' + error));
+                                 } else {
+                                       resolve(results);
+                                 }
+                              });
+                           });
+
+                        const parsedDate = new Date(row.orderDate);
+                        const formattedDate = `${parsedDate.getDate()} ${parsedDate.toLocaleString('default', { month: 'long' })} ${parsedDate.getFullYear()}`;
+     
+                        console.log(formattedDate);
+                        return {
+                           id: row.id,
+                           date: formattedDate,
+                           total: row.totalAmount,
+                           books,
+                           multiVolumeBooks
+                        };
+                     }));
+     
+                     resolve(orders);
+                 } 
+                 catch (error) 
+                 {
+                     console.error('Error processing orders:', error);
+                     reject(error);
+                 }
+             });
+         });
+     }
+
+   async updateEmail(newEmail, oldEmail)
+   {
+      console.log(newEmail, oldEmail);
+
+      return new Promise((resolve, reject) => {
+         this.db.connection.query('SELECT * FROM users WHERE email = ?', [newEmail], (error, results) => {
+            if(error)
+            {
+               if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+               else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+               else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+               else reject(new Error('An unknown error occurred.' + error));
+            }
+
+            if (results.length > 0) reject(new Error('User with this email already exists.'));
+            else
+            {
+               this.db.connection.query('UPDATE users SET email = ? WHERE email = ?', [newEmail, oldEmail], (error, results) => {
+                  if(error)
+                  {
+                     if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                     else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                     else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                     else reject(new Error('An unknown error occurred.' + error));
+                  }
+
+                  resolve(results);
+               });
+            }
+         })
+      })
+   }
+
+   async updateUsername(username, email)
+   {
+      return new Promise((resolve, reject) => {
+         this.db.connection.query('UPDATE users SET username = ? WHERE email = ?', [username, email], (error, results) => {
+            if(error)
+            {
+               if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+               else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+               else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+               else reject(new Error('An unknown error occurred.' + error));
+            }
+
+            resolve(results);
+         });  
+      })
+   }
+
+   async updatePassword(password, email)
+   {
+      return new Promise((resolve, reject) => {
+         this.db.connection.query('UPDATE users SET password = ? WHERE email = ?', [password, email], (error, results) => {
+            if(error)
+            {
+               if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+               else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+               else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+               else reject(new Error('An unknown error occurred.' + error));
+            }
+
+            resolve(results);
+         });
+         
+      })
+   }
 }
 
 module.exports = DB_Handler;
