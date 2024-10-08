@@ -4,7 +4,7 @@ const User = require('../../models/user');
 const DB_Handler = require('../../models/db_handler');
 const { CartItem } = require('../../models/cart');
 
-router.post('/update', (req, res) => {
+router.post('/update', async (req, res) => {
    if(req.session.user)
    {
       const user = User.fromSession(req.session.user);
@@ -13,14 +13,25 @@ router.post('/update', (req, res) => {
       const cartItem = user.cart.items.find(item => item.book.title == title);
       if(cartItem)
       {
-         cartItem.quantity = quantity;
+         const db_handler = new DB_Handler();
+         
+         const bookQuantity = await db_handler.getBookQuantity(title); 
 
-         const cartPrice = user.calculate_cart_total();
-         const discountPrice = cartPrice - user.apply_discount();
-         const cartTotal = user.apply_discount();
-
-         req.session.user = user.toJSON();
-         res.json({ success: true, message: "Cart updated successfully!", cartPrice, discountPrice, cartTotal });
+         if(quantity <= bookQuantity)
+         {
+            cartItem.quantity = quantity;
+   
+            const cartPrice = user.calculate_cart_total();
+            const discountPrice = cartPrice - user.apply_discount();
+            const cartTotal = user.apply_discount();
+   
+            req.session.user = user.toJSON();
+            res.json({ success: true, message: "Cart updated successfully!", cartPrice, discountPrice, cartTotal });
+         }
+         else
+         {
+            res.json({ success: false, errorMessage: "Not enough books in stock!" });
+         }
       }
       else
       {
@@ -68,7 +79,7 @@ router.post('/add', (req, res) => {
 
    if (req.session.user) {
          db_handler.getBookByTitle(bookTitle)
-         .then(book => {
+         .then(async book => {
             book.quantity = 1;
             const cartItem = new CartItem(book, 1);
 
@@ -77,7 +88,18 @@ router.post('/add', (req, res) => {
 
             if (existingCartItem) 
             {
-               existingCartItem.quantity += 1;
+               const bookQuantity = await db_handler.getBookQuantity(bookTitle)
+               const newQuantity = existingCartItem.quantity + 1;
+
+               if(newQuantity <= bookQuantity)
+               {
+                  existingCartItem.quantity = newQuantity;
+               }
+               else
+               {
+                  res.json({ success: false, errorMessage: "Not enough books in stock!" });
+                  return;
+               }
             } 
             else 
             {

@@ -53,14 +53,11 @@ let pageRoutes = [
 
 // API routes
 let apiRoutes = [
-   { path: '/api/allBooks', route: require('./routers/api/allBooks.js') },
-   { path: '/api/register', route: require('./routers/api/register.js') },
-   { path: '/api/login', route: require('./routers/api/login.js') },
-   { path: '/api/logout', route: require('./routers/api/logout.js') },
    { path: '/api/cart', route: require('./routers/api/cart.js') },
    { path: '/api/checkout', route: require('./routers/api/checkout.js') },
    { path: '/api/filter', route: require('./routers/api/filter.js')},
-   { path: '/api/book', route: require('./routers/api/book.js')}
+   { path: '/api/book', route: require('./routers/api/book.js')}, 
+   { path: '/api/user', route: require('./routers/api/user.js')},
 ];
 
 pageRoutes.forEach(route => {

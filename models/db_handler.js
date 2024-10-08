@@ -656,6 +656,31 @@ class DB_Handler {
 
          return allBooks.filter(book => book.subcategory === subcategory);
       }
+
+      async getBookQuantity(title)
+      {
+         if(!title) throw new Error('Book title is missing ');
+
+         if(typeof title !== 'string') throw new Error('Book title must be a string');
+
+         if(title.length < 3) throw new Error('Book title is too short');
+
+         return new Promise((resolve, reject) => {
+            this.db.connection.query("SELECT quantity FROM book WHERE title = ?", [title], (error, results) => {
+               if(error)
+               {
+                  if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                  else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                  else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                  else reject(new Error('An unknown error occurred.' + error));
+               }
+
+               if(results.length === 0) reject(new Error('Book not found'));
+               
+               resolve(results[0].quantity);
+            })
+         })
+      }
 }
 
 module.exports = DB_Handler;

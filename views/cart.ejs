@@ -99,13 +99,18 @@
                   infoBox.classList.remove('info-box_hidden');
                   setTimeout(() => {
                      infoBox.classList.add('info-box_hidden');
-                     infoBox.classList.remove('info-box_success');
                   }, 4000);
+
+                  setTimeout(() => {
+                     infoBox.classList.remove('info-box_success');
+                  }, 4500);
                }
                else
                {
                   infoBoxText.textContent = data.errorMessage;
-                  infoBox.classlist.remove('info-box_success');
+                  if(infoBox.classList.contains('info-box_success'))
+                     infoBox.classlist.remo('info-box_success');
+
                   infoBox.classList.remove('info-box_hidden');
                   setTimeout(() => {
                      infoBox.classList.add('info-box_hidden');
@@ -114,7 +119,9 @@
             })
             .catch(error => {
                infoBoxText.textContent = 'An error occurred';
-               infoBox.classlist.remove('info-box_success');
+               if(infoBox.classList.contains('info-box_success'))
+                     infoBox.classlist.remo('info-box_success');
+                  
                infoBox.classList.remove('info-box_hidden');
                setTimeout(() => {
                   infoBox.classList.add('info-box_hidden');

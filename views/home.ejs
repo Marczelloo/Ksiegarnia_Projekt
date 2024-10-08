@@ -122,7 +122,9 @@
                             body: JSON.stringify({ title: bookTitle })
                         });
 
-                        if(response.status == 200)
+                        const data = await response.json();
+
+                        if(data.success)
                         {
                             infoBoxText.textContent = `Book '${bookTitle}' added to cart`;
                             infoBox.classList.add('info-box_success');
@@ -133,7 +135,7 @@
                         }
                         else
                         {
-                            infoBoxText.textContent = 'Error adding book to cart. Try again later!';
+                            infoBoxText.textContent = data.errorMessage;
                             infoBox.classList.remove('info-box_success');
                             infoBox.classList.remove('info-box_hidden');
                             setTimeout(() => {
