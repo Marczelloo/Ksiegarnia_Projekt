@@ -11,11 +11,56 @@
         <%- include('partials/header') %>
         <%- include('partials/infoBox') %>
         <section class="container">
-            <h2 class="main_header"> Welcome to bookworms </h2>
-            <p class="main_paragraph"> The best place to find your next read </p>
+            <div class="main_search_container">
+                <form action="/api/filter/search" method="GET">
+                    <input type="text" name="search" class="main_search_input" placeholder="Search for a book" onchange="(v)=> this.value = v">
+                    <button type="submit" class="main_search_button"> 
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                    </button>
+                </form>
+                <form action="/api/filter/filterAndSort" mehtod="GET">
+                    <% if (categoriesOptions || subcategoriesOptions) { %>
+                        <label> Sort </label>
+                        <select name="sort" class="main_search_sort" onchange="this.form.submit()">
+                            <option value="" <% if(!sort) { %> selected <% } %>> --- </option>
+                            <option value="title" <% if(sort === 'title') { %> selected <% } %>> Title </option>
+                            <option value="author" <% if(sort === 'author') { %> selected <% } %>> Author </option>
+                            <option value="price" <% if(sort === 'price') { %> selected <% } %>> Price </option>
+                            <option value="pages" <% if(sort === 'pages') { %> selected <% } %>> Pages </option>
+                        </select>
+                        <div class="main_search_separator"></div>
+                        <label> Filter </label>
+                        <select id="category_select" name="category" class="main_search_filter_category" onchange="this.form.submit()">
+                            <option value="" <% if(!category) { %> selected <% } %>> --- </option>
+                            <% categoriesOptions.forEach(element => { %>
+                                <option value="<%=element%>" <% if(category === element) { %> selected <% } %>> <%= element %> </option>
+                            <% }) %>
+                        </select>
+                        <select id="subcategory_select" name="subcategory" class="main_search_filter_subcategory" onchange="this.form.submit()">
+                            <option value="" <% if(!subcategory) { %> selected <% } %>> --- </option>
+                            <% subcategoriesOptions.forEach(element => { %>
+                                <option value="<%=element%>" <% if(subcategory === element) { %> selected <% } %>> <%= element %> </option>
+                            <% }) %>
+                        </select>
+                        <div class="main_search_separator"></div>
+                        <label> Order </label>
+                        <select name="order" class="main_search_order" onchange="this.form.submit()">
+                            <option value="" <% if(!order) { %> selected <% } %>> --- </option>
+                            <option value="asc" <% if(order === 'asc') { %> selected <% } %>> Asc </option>
+                            <option value="desc" <% if(order === 'desc') { %> selected <% } %>> Desc </option>
+                        </select>
+                    <% } else { %>
+
+                    <% } %>
+                </form>
+            </div>
 
             <% if (errorMessage) { %>
-                <p class="main_books_error_message"> <%= error %> </p>
+                <p class="main_books_error_message"> <%= errorMessage %> </p>
+            <% } else if(books.length === 0) { %>
+                <p class="main_books_error_message"> No books found! </p>
             <% } else { %>
                 <div class="main_books_container">
                 <% books.forEach(element => { %>
@@ -28,10 +73,15 @@
     </div>
 </body>
 <script>
+    const addToCartButtons = document.querySelectorAll('.book_card_container_addToCart');
+    
+    const infoBox = document.querySelector('.info-box_container');
+    const infoBoxText = document.querySelector('.info-box_text');
+
+    const categoriesElement = document.getElementById('category_select');
+    const subcategoriesElement = document.getElementById('subcategory_select');
+
     document.addEventListener('DOMContentLoaded', () => {
-        const addToCartButtons = document.querySelectorAll('.book_card_container_addToCart');
-        const infoBox = document.querySelector('.info-box_container');
-        const infoBoxText = document.querySelector('.info-box_text');
 
         if(sessionStorage.getItem('showInfoBox') === 'true')
         {

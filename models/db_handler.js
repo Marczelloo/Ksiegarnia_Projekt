@@ -176,10 +176,7 @@ class DB_Handler {
                const books = await this.getBooks();
                const multivolumebooks = await this.getMultiVolumeBooks();
                const products = [...books, ...multivolumebooks];
-               for (let i = products.length - 1; i > 0; i--) {
-                  const j = Math.floor(Math.random() * (i + 1));
-                  [products[i], products[j]] = [products[j], products[i]];
-               }
+               
                resolve(products);
             } 
             catch (error) 
@@ -558,6 +555,107 @@ class DB_Handler {
             }
          }
       } 
+
+      async getBookQuantity(title)
+      {
+         if(!title) throw new Error('Book title is missing ');
+
+         if(typeof title !== 'string') throw new Error('Book title must be a string');
+
+         if(title.length < 3) throw new Error('Book title is too short');
+         if(title.length > 50) throw new Error('Book title is too long');
+
+         return new Promise((resolve, reject) => {
+            this.db.connection.query('SELECT quantity FROM book WHERE title = ?', [title], (error, results) => {
+               if(error)
+               {
+                  if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                  else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                  else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                  else reject(new Error('An unknown error occurred.' + error));
+               }
+               
+               if(results.length === 0) reject(new Error('Book not found'))
+               {
+                  this.db.connection.query('SELECT quantity FROM multivolumebook WHERE title = ?', [title], (error, results) => {
+                     if(error)
+                     {
+                        if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                        else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                        else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                        else reject(new Error('An unknown error occurred.' + error));
+                     }
+
+                     if(results.length === 0) reject(new Error('Book not found'));
+                  });
+               }
+            });
+         });
+      }
+
+      async getCategories()
+      {
+         return new Promise((resolve, reject) => {
+            this.db.connection.query('SELECT name FROM category', (error, results) => {
+               if(error)
+               {
+                  if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                  else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                  else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                  else reject(new Error('An unknown error occurred.' + error));
+               }
+
+               const categories = results.map(row => row.name);
+
+               resolve(categories);
+            })
+         })
+      }
+
+      async getSubcategories()
+      {
+         return new Promise((resolve, reject) => {
+            this.db.connection.query('SELECT name FROM subcategory', (error, results) => {
+               if(error)
+               {
+                  if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                  else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                  else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                  else reject(new Error('An unknown error occurred.' + error));
+               }
+
+               const subcategories = results.map(row => row.name);
+            
+               resolve(subcategories);
+            })
+         })
+      }
+
+      async getAllProductsByCategory(category)
+      {
+         if(!category) throw new Error('Category is missing');
+
+         if(typeof category !== 'string') throw new Error('Category must be a string');
+
+         if(category.length < 3) throw new Error('Category is too short');
+
+         const allBooks = await this.getAllProducts();
+
+         return allBooks.filter(book => book.category === category);
+      }
+
+      async getAllProductsBySubcategory(subcategory)
+      {
+         if(!subcategory) throw new Error('Subcategory is missing');
+
+         if(typeof subcategory !== 'string') throw new Error('Subcategory must be a string');
+
+         if(subcategory.length < 3) throw new Error('Subcategory is too short');
+
+         const allBooks = await this.getAllProducts();
+
+         return allBooks.filter(book => book.subcategory === subcategory);
+      }
 }
 
 module.exports = DB_Handler;
