@@ -57,8 +57,6 @@ let apiRoutes = [
    { path: '/api/register', route: require('./routers/api/register.js') },
    { path: '/api/login', route: require('./routers/api/login.js') },
    { path: '/api/logout', route: require('./routers/api/logout.js') },
-   { path: '/api/checkLogedState', route: require('./routers/api/checkLogedState.js') },
-   { path: '/api/addToCart', route: require('./routers/api/addToCart.js') },
    { path: '/api/cart', route: require('./routers/api/cart.js') },
    { path: '/api/checkout', route: require('./routers/api/checkout.js') },
    { path: '/api/filter', route: require('./routers/api/filter.js')},

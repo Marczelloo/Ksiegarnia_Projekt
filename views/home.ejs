@@ -8,18 +8,10 @@
 </head>
 <body>
     <div class="wrapper">
-        <%- include('partials/header') %>
+        <%- include('partials/header', { logged }) %>
         <%- include('partials/infoBox') %>
         <section class="container">
             <div class="main_search_container">
-                <form action="/api/filter/search" method="GET">
-                    <input type="text" name="search" class="main_search_input" placeholder="Search for a book" onchange="(v)=> this.value = v">
-                    <button type="submit" class="main_search_button"> 
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>
-                    </button>
-                </form>
                 <form action="/api/filter/filterAndSort" mehtod="GET">
                     <% if (categoriesOptions || subcategoriesOptions) { %>
                         <label> Sort </label>
@@ -73,6 +65,8 @@
     </div>
 </body>
 <script>
+    const logged = <%= logged %>;
+
     const addToCartButtons = document.querySelectorAll('.book_card_container_addToCart');
     
     const infoBox = document.querySelector('.info-box_container');
@@ -116,18 +110,11 @@
 
                 try
                 {
-                    const response = await fetch('/api/checkLogedState', {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    if(response.status == 200)
+                    if(logged)
                     {
                         const bookTitle = button.getAttribute('data-title');
 
-                        const response = await fetch('/api/addToCart', {
+                        const response = await fetch('/api/cart/add', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -137,7 +124,6 @@
 
                         if(response.status == 200)
                         {
-                            //display success message
                             infoBoxText.textContent = `Book '${bookTitle}' added to cart`;
                             infoBox.classList.add('info-box_success');
                             infoBox.classList.remove('info-box_hidden');
@@ -147,7 +133,6 @@
                         }
                         else
                         {
-                            //display error message
                             infoBoxText.textContent = 'Error adding book to cart. Try again later!';
                             infoBox.classList.remove('info-box_success');
                             infoBox.classList.remove('info-box_hidden');
@@ -158,7 +143,6 @@
                     }
                     else
                     {
-                        //display error message
                         infoBoxText.textContent = 'You must be logged in to add a book to the cart';
                         infoBox.classList.remove('info-box_success');
                         infoBox.classList.remove('info-box_hidden');

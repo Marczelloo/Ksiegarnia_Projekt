@@ -2,12 +2,61 @@ const express = require('express');
 const router = express.Router();
 const DB_Handler = require('../../models/db_handler.js');
 
-router.get('/search', (req, res) => {
+router.get('/search', async (req, res) => {
+   const logged = req.session.user ? true : false;
+
    const db_handler = new DB_Handler();
+
+   const sort = req.query.sort;
+   const category = req.query.category;
+   const subcategory = req.query.subcategory;
+   const order = req.query.order;
 
    const searchPhrase = req.query.search;
 
-   console.log(searchPhrase);
+   let categories;
+   let subcategories;
+
+   try
+   {
+      categories = await db_handler.getCategories();
+   }
+   catch(error)
+   {
+      console.error(error);
+      res.render('home', { books: [], success: false, errorMessage: "There was problem with loading books! Please try again later!", sort, order, category, subcategory, categoriesOptions: [],  subcategoriesOptions: [], logged });
+   }
+
+   try
+   {
+      subcategories = await db_handler.getSubcategories();
+   }
+   catch(error)
+   {
+      console.error(error);
+      res.render('home', { books: [], success: false, errorMessage: "There was problem with loading books! Please try again later!", sort, order, category, subcategory, categoriesOptions: [],  subcategoriesOptions: [], logged });
+   }
+
+   let products = await db_handler.getAllProducts()
+   .then(products => products)
+   .catch(error => {
+      console.error(error);
+      res.render('home', { books: [], success: false, errorMessage: "There was problem with loading books! Please try again later!", sort, order, category, subcategory, categoriesOptions: [],  subcategoriesOptions: [], logged });
+   })
+
+   if(searchPhrase)
+   {
+      products = products.filter(product => product.title.toLowerCase().includes(searchPhrase.toLowerCase()) || product.author.toLowerCase().includes(searchPhrase.toLowerCase()));
+   }
+
+   if(products.length === 0)
+   {
+      res.render('home', { books: [], success: true, errorMessage: null, sort, order, category, subcategory, categoriesOptions: categories, subcategoriesOptions: subcategories, logged });
+   }
+   else
+   {
+      res.render('home', { books: products, success: true, errorMessage: null, sort, order, category, subcategory, categoriesOptions: categories, subcategoriesOptions: subcategories, logged});
+   }
 })
 
 router.get('/filterAndSort', async (req, res) => {
@@ -28,7 +77,7 @@ router.get('/filterAndSort', async (req, res) => {
    catch(error)
    {
       console.error(error);
-      res.render('home', { books: [], success: false, errorMessage: "There was problem with loading books! Please try again later!", sort, order, category, subcategory, categoriesOptions: [],  subcategoriesOptions: [] });
+      res.render('home', { books: [], success: false, errorMessage: "There was problem with loading books! Please try again later!", sort, order, category, subcategory, categoriesOptions: [],  subcategoriesOptions: [], logged });
    }
 
    try
@@ -38,14 +87,14 @@ router.get('/filterAndSort', async (req, res) => {
    catch(error)
    {
       console.error(error);
-      res.render('home', { books: [], success: false, errorMessage: "There was problem with loading books! Please try again later!", sort, order, category, subcategory, categoriesOptions: [],  subcategoriesOptions: [] });
+      res.render('home', { books: [], success: false, errorMessage: "There was problem with loading books! Please try again later!", sort, order, category, subcategory, categoriesOptions: [],  subcategoriesOptions: [], logged });
    }
 
    let products = await db_handler.getAllProducts()
    .then(products => products)
    .catch(error => {
       console.error(error);
-      res.render('home', { books: [], success: false, errorMessage: "There was problem with loading books! Please try again later!", sort, order, category, subcategory, categoriesOptions: [],  subcategoriesOptions: [] });
+      res.render('home', { books: [], success: false, errorMessage: "There was problem with loading books! Please try again later!", sort, order, category, subcategory, categoriesOptions: [],  subcategoriesOptions: [], logged });
    })
 
    if(category)
@@ -70,11 +119,11 @@ router.get('/filterAndSort', async (req, res) => {
 
    if(products.length === 0)
    {
-      res.render('home', { books: [], success: true, errorMessage: null, sort, order, category, subcategory, categoriesOptions: categories, subcategoriesOptions: subcategories });
+      res.render('home', { books: [], success: true, errorMessage: null, sort, order, category, subcategory, categoriesOptions: categories, subcategoriesOptions: subcategories, logged });
    }
    else
    {
-      res.render('home', { books: products, success: true, errorMessage: null, sort, order, category, subcategory, categoriesOptions: categories, subcategoriesOptions: subcategories });
+      res.render('home', { books: products, success: true, errorMessage: null, sort, order, category, subcategory, categoriesOptions: categories, subcategoriesOptions: subcategories, logged });
    }
 
 });
