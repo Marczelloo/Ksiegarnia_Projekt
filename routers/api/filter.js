@@ -60,6 +60,8 @@ router.get('/search', async (req, res) => {
 })
 
 router.get('/filterAndSort', async (req, res) => {
+   const logged = req.session.user ? true : false;
+
    const db_handler = new DB_Handler();
    
    const sort = req.query.sort;

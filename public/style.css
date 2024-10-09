@@ -982,7 +982,14 @@ input::placeholder {
 .profile_orders_books_item {
    display: grid;
    grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr;
+   gap: .5rem;
    align-items: center;
+}
+
+.profile_orders_books_item > p {}
+
+.profile_orders_books_item > p:last-of-type {
+   text-align: right;
 }
 
 .profile_orders_books_item > img {

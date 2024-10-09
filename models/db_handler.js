@@ -405,10 +405,6 @@ class DB_Handler {
          })
       }
 
-      async getOrders(user) {
-
-      }
-
       async placeOrder(user, shippingDetails, paymentDetails, cartItems, date, total) {
          if(!user) throw new Error('User is missing');
          if(!shippingDetails) throw new Error('Shipping details are missing');
