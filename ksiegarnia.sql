@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Paź 02, 2024 at 02:38 AM
+-- Generation Time: Paź 10, 2024 at 09:22 PM
 -- Wersja serwera: 10.4.32-MariaDB
 -- Wersja PHP: 8.2.12
 
@@ -20,6 +20,7 @@ SET time_zone = "+00:00";
 --
 -- Database: `ksiegarnia`
 --
+CREAETE DATABASE IF NOT EXISTS `ksiegarnia` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -143,21 +144,6 @@ INSERT INTO `multivolumebookvolumes` (`multi_volume_book_id`, `book_id`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struktura tabeli dla tabeli `order`
---
-
-CREATE TABLE `order` (
-  `orderId` int(11) NOT NULL,
-  `customerId` int(11) NOT NULL,
-  `shippingDetailsId` int(11) NOT NULL,
-  `paymentDetailsId` int(11) NOT NULL,
-  `orderDate` datetime NOT NULL,
-  `totalAmount` decimal(10,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Struktura tabeli dla tabeli `orderitem`
 --
 
@@ -168,6 +154,21 @@ CREATE TABLE `orderitem` (
   `multiVolumeBookId` int(11) DEFAULT NULL,
   `quantity` int(11) NOT NULL,
   `price` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `orders`
+--
+
+CREATE TABLE `orders` (
+  `orderId` int(11) NOT NULL,
+  `customerId` int(11) NOT NULL,
+  `shippingDetailsId` int(11) NOT NULL,
+  `paymentDetailsId` int(11) NOT NULL,
+  `orderDate` datetime NOT NULL,
+  `totalAmount` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -243,13 +244,6 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `username`, `email`, `password`) VALUES
-(10, 'Marczelloo', 'moskwamarcel@gmail.com', '9cd3be4f628e653bb964295709670891');
-
---
 -- Indeksy dla zrzutów tabel
 --
 
@@ -283,15 +277,6 @@ ALTER TABLE `multivolumebookvolumes`
   ADD KEY `book_id` (`book_id`);
 
 --
--- Indeksy dla tabeli `order`
---
-ALTER TABLE `order`
-  ADD PRIMARY KEY (`orderId`),
-  ADD UNIQUE KEY `customerId` (`customerId`),
-  ADD UNIQUE KEY `shippingId` (`shippingDetailsId`),
-  ADD UNIQUE KEY `paymentId` (`paymentDetailsId`) USING BTREE;
-
---
 -- Indeksy dla tabeli `orderitem`
 --
 ALTER TABLE `orderitem`
@@ -299,6 +284,15 @@ ALTER TABLE `orderitem`
   ADD KEY `orderId` (`orderId`),
   ADD KEY `bookId` (`bookId`),
   ADD KEY `multiVolumeBookId` (`multiVolumeBookId`);
+
+--
+-- Indeksy dla tabeli `orders`
+--
+ALTER TABLE `orders`
+  ADD PRIMARY KEY (`orderId`),
+  ADD KEY `customerId` (`customerId`) USING BTREE,
+  ADD KEY `paymentId` (`paymentDetailsId`) USING BTREE,
+  ADD KEY `shippingId` (`shippingDetailsId`) USING BTREE;
 
 --
 -- Indeksy dla tabeli `paymentdetails`
@@ -349,28 +343,28 @@ ALTER TABLE `multivolumebook`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `order`
---
-ALTER TABLE `order`
-  MODIFY `orderId` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `orderitem`
 --
 ALTER TABLE `orderitem`
-  MODIFY `orderItemId` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `orderItemId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `orders`
+--
+ALTER TABLE `orders`
+  MODIFY `orderId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `paymentdetails`
 --
 ALTER TABLE `paymentdetails`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `shippingdetails`
 --
 ALTER TABLE `shippingdetails`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `subcategory`
@@ -382,7 +376,7 @@ ALTER TABLE `subcategory`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables
@@ -410,20 +404,20 @@ ALTER TABLE `multivolumebookvolumes`
   ADD CONSTRAINT `multivolumebookvolumes_ibfk_2` FOREIGN KEY (`book_id`) REFERENCES `book` (`id`);
 
 --
--- Constraints for table `order`
---
-ALTER TABLE `order`
-  ADD CONSTRAINT `order_ibfk_1` FOREIGN KEY (`customerId`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `order_ibfk_2` FOREIGN KEY (`paymentDetailsId`) REFERENCES `paymentdetails` (`id`),
-  ADD CONSTRAINT `order_ibfk_3` FOREIGN KEY (`shippingDetailsId`) REFERENCES `shippingdetails` (`id`);
-
---
 -- Constraints for table `orderitem`
 --
 ALTER TABLE `orderitem`
-  ADD CONSTRAINT `orderitem_ibfk_1` FOREIGN KEY (`orderId`) REFERENCES `order` (`orderId`),
+  ADD CONSTRAINT `orderitem_ibfk_1` FOREIGN KEY (`orderId`) REFERENCES `orders` (`orderId`),
   ADD CONSTRAINT `orderitem_ibfk_2` FOREIGN KEY (`bookId`) REFERENCES `book` (`id`),
   ADD CONSTRAINT `orderitem_ibfk_3` FOREIGN KEY (`multiVolumeBookId`) REFERENCES `multivolumebook` (`id`);
+
+--
+-- Constraints for table `orders`
+--
+ALTER TABLE `orders`
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`customerId`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`paymentDetailsId`) REFERENCES `paymentdetails` (`id`),
+  ADD CONSTRAINT `orders_ibfk_3` FOREIGN KEY (`shippingDetailsId`) REFERENCES `shippingdetails` (`id`);
 
 --
 -- Constraints for table `paymentdetails`
