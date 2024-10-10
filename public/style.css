@@ -941,6 +941,11 @@ input::placeholder {
    transition: background-color .2s ease;
 }
 
+.profile_update > form:last-of-type > button {
+   background-color: var(--error);
+   margin: 0;
+}
+
 .profile_update > form > button:hover {
    background-color: var(--accent);
 }
@@ -1003,6 +1008,74 @@ input::placeholder {
    width: 50px;
    height: 50px;
 }
+
+body.no-scroll {
+   overflow: hidden;
+}
+
+.profile_update_account_warning {
+   display: none;
+   align-items: center;
+   justify-content: center;
+
+   position: fixed;
+   top: 0;
+   left: 0;
+
+   width: 100%;
+   height: 100%;
+
+   background-color: rgba(0, 0, 0, 0.7);
+}
+
+.profile_update_account_warning > div {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: .5rem;
+
+   padding: 1.5rem;
+
+   background-color: var(--secondary);
+   border-radius: .5rem;
+}
+
+.profile_update_account_warning > div > div {
+   display: flex;
+   flex-direction: row;
+   gap: 2rem;
+
+   margin-top: 1.5rem;
+}
+
+.profile_update_account_warning > div > div > button {
+   all: unset;
+
+   width: 2rem;
+
+   padding: .5rem 1rem;
+
+   background-color: var(--primary);
+   border-radius: .5rem;
+
+   font-size: 1rem;
+   font-weight: 600;
+   text-align: center;
+   text-transform: uppercase;
+
+   transition: background-color .2s ease;
+
+   cursor: pointer;
+}
+
+.profile_update_account_warning > div > div > button:first-of-type {
+   background-color: var(--error);
+}
+
+.profile_update_account_warning > div > div > button:hover {
+   background-color: var(--accent);
+}
+
 
 /* =================== */
 /* BOOK PAGE */

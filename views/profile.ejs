@@ -3,7 +3,7 @@
 <head>
    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Bookworms </title>
+    <title> Profile </title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -37,6 +37,20 @@
                   <input type="password" name="repeat_password" id="repeat_password">
                   <button type="submit"> Change </button>
                </form>
+               <label> Delete account </label>
+               <form method="POST" id="deleteAccount">
+                  <button type="submit"> Delete </button>
+               </form>
+               <div class="profile_update_account_warning" id="accountDeleteWarning">
+                  <div>
+                     <p> Warning! This action is irreversible! </p>
+                     <p> Are you sure you want to delete your account? </p>
+                     <div>
+                        <button id="deleteAccountButton"> Yes </button>
+                        <button id="cancelDeleteAccountButton"> No </button>
+                     </div>
+                  </div>
+               </div>
                <p class="profile_update_error_message" id="changeErrorText"> </p>
             </div>
             <div class="cart_item_separator"> </div>
@@ -165,7 +179,6 @@
          changeErrorText.innerText = data.error;
          return
       }
-
    })
 
    document.getElementById('changeUsername').addEventListener('submit', async function(event) {
@@ -256,6 +269,57 @@
          changeErrorText.innerText = data.error;
          return
       }
+   })
+
+   document.getElementById('deleteAccount').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const accountWarning = document.getElementById('accountDeleteWarning').style.display = 'flex';
+      document.body.classList.add('no-scroll');
+      
+      const deleteAccountButton = document.getElementById('deleteAccountButton');
+      const cancelDeleteAccountButton = document.getElementById('cancelDeleteAccountButton');
+
+      deleteAccountButton.addEventListener("click", async () => {
+         const email = '<%= user.email %>';
+
+         const response = await fetch('/api/user/delete', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+               email
+            })
+         })
+
+         const data = await response.json();
+
+         if(data.success)
+         {
+            sessionStorage.setItem('showInfoBox', 'true');
+            sessionStorage.setItem('infoBoxSuccess', 'true');
+            sessionStorage.setItem('infoBoxText', `Account deleted successfully!`);
+            window.location.href = '/';
+         }
+         else
+         {
+            changeErrorText.style.display = 'block';
+            changeErrorText.innerText = data.error;
+
+            infoBoxText.textContent = data.error;
+            infoBox.classList.remove('info-box_hidden');
+            setTimeout(() => {
+               infoBox.classList.add('info-box_hidden');
+            }, 4000);
+            return
+         }
+      })
+
+      cancelDeleteAccountButton.addEventListener("click", () => {
+         document.getElementById('accountDeleteWarning').style.display = 'none';
+         document.body.classList.remove('no-scroll');
+      })
    })
    
 </script>

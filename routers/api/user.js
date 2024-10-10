@@ -121,4 +121,41 @@ router.post('/update/password', (req, res) => {
    })
 })
 
+router.post('/reset/password', (req, res) => {
+   const { email, password } = req.body;
+
+   const hashedPassword = md5(password);
+
+   const db_handler = new DB_Handler();
+   db_handler.resetPassword(email, hashedPassword)
+   .then(() => {
+      res.json({ success: true, message: "Password reset successfully!"})
+   })
+   .catch(error => {
+      console.error(error);
+      res.json({ success: false, errorMessage: error.message })
+   })
+})
+
+router.post('/delete', (req, res) => {
+   const email = req.session.user.email;
+
+   const db_handler = new DB_Handler();
+   db_handler.deleteUser(email)
+   .then(() => {
+      req.session.destroy(err => {
+         if(err)
+         {
+            console.error(err);
+            res.status(500).send({ success: false, errorMessage: "Failed to delete user!" });
+         }
+      })
+      res.json({ success: true, message: "User deleted successfully!"})
+   })
+   .catch(error => {
+      console.error(error);
+      res.json({ success: false, errorMessage: error.message })
+   })
+});
+
 module.exports = router;

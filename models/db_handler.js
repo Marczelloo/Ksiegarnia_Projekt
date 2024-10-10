@@ -750,7 +750,6 @@ class DB_Handler {
                         const parsedDate = new Date(row.orderDate);
                         const formattedDate = `${parsedDate.getDate()} ${parsedDate.toLocaleString('default', { month: 'long' })} ${parsedDate.getFullYear()}`;
      
-                        console.log(formattedDate);
                         return {
                            id: row.id,
                            date: formattedDate,
@@ -837,6 +836,143 @@ class DB_Handler {
          });
          
       })
+   }
+
+   async resetPassword(email, password)
+   {
+      return new Promise((resolve, reject) => {
+         this.db.connection.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
+            if(error)
+            {
+               if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+               else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+               else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+               else reject(new Error('An unknown error occurred.' + error));
+            }
+
+            if(results.length === 0)
+            {
+               reject(new Error('User not found'));
+               return;
+            } 
+            else
+            {
+               this.db.connection.query('UPDATE users SET password = ? WHERE email = ?', [password, email], (error, results) => {
+                  if(error)
+                  {
+                     if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                     else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                     else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                     else reject(new Error('An unknown error occurred.' + error));
+                     return;
+                  }
+   
+                  resolve(results);
+               });
+            }
+         });
+      });
+   }
+
+   async deleteUser(email) {
+      return new Promise((resolve, reject) => {
+         this.db.connection.query('SELECT * FROM users WHERE email = ?', [email], async (error, results) => {
+            if (error) 
+            {
+               if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+               else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+               else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+               else reject(new Error('An unknown error occurred.' + error));
+               return;
+            }
+
+            if (results.length === 0) 
+            {
+               reject(new Error('User not found'));
+               return;
+            }
+
+            const user = results[0];
+
+            try 
+            {
+               await this.db.connection.beginTransaction();
+
+               await new Promise((resolve, reject) => {
+                  this.db.connection.query('DELETE FROM orderitem WHERE orderId IN (SELECT orderId FROM orders WHERE customerId = ?)', [user.id], (error, results) => {
+                      if (error) {
+                          if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                          else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                          else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                          else reject(new Error('An unknown error occurred.' + error));
+                          return;
+                      }
+                      resolve(results);
+                  });
+              });
+
+               await new Promise((resolve, reject) => {
+                  this.db.connection.query('DELETE FROM orders WHERE customerId = ?', [user.id], (error, results) => {
+                     if (error) {
+                           if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                           else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                           else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                           else reject(new Error('An unknown error occurred.' + error));
+                           return;
+                     }
+                     resolve(results);
+                  });
+               });
+
+               await new Promise((resolve, reject) => {
+                  this.db.connection.query('DELETE FROM paymentdetails WHERE user_id = ?', [user.id], (error, results) => {
+                     if (error) {
+                           if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                           else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                           else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                           else reject(new Error('An unknown error occurred.' + error));
+                           return;
+                     }
+                     resolve(results);
+                  });
+               });
+
+               await new Promise((resolve, reject) => {
+                  this.db.connection.query('DELETE FROM shippingdetails WHERE user_id = ?', [user.id], (error, results) => {
+                     if (error) {
+                           if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                           else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                           else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                           else reject(new Error('An unknown error occurred.' + error));
+                           return;
+                     }
+                     resolve(results);
+                  });
+               });
+
+               await new Promise((resolve, reject) => {
+                  this.db.connection.query('DELETE FROM users WHERE id = ?', [user.id], (error, results) => {
+                     if (error) {
+                           if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+                           else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+                           else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+                           else reject(new Error('An unknown error occurred.' + error));
+                           return;
+                     }
+                     resolve(results);
+                  });
+               });
+
+               await this.db.connection.commit();
+               resolve({ success: true });
+            } 
+            catch (error) 
+            {
+               await this.db.connection.rollback();
+               reject(error);
+            }
+         });
+      });
    }
 }
 

@@ -11,8 +11,6 @@ router.get('/', async (req, res) => {
       return;
    }
 
-   console.log(req.session.user);
-
    const db_handler = new DB_Handler();
 
    const user = req.session.user;
@@ -26,9 +24,6 @@ router.get('/', async (req, res) => {
       res.render('profile', { logged, user, orders: null, success: false, errorMessage: "There was problem with loading orders! Please try again later!" });
       return;
    })
-
-
-
 })
 
 module.exports = router;
