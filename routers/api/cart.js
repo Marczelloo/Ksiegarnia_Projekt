@@ -76,12 +76,15 @@ router.post('/remove', (req, res) => {
 router.post('/add', (req, res) => {
    const db_handler = new DB_Handler();
    const bookTitle = req.body.title;
+   const quantity = req.body.quantity;
+
+   console.log(bookTitle, quantity);
 
    if (req.session.user) {
          db_handler.getBookByTitle(bookTitle)
          .then(async book => {
-            book.quantity = 1;
-            const cartItem = new CartItem(book, 1);
+            book.quantity = quantity;
+            const cartItem = new CartItem(book, quantity);
 
             const user = User.fromSession(req.session.user);
             const existingCartItem = user.cart.items.find(item => item.book.get_title() === book.title);

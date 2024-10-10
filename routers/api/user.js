@@ -15,14 +15,14 @@ router.post('/login', (req, res) => {
       db_handler.login(email, hashedPassword)
       .then(user => {
          req.session.user = user;
-         res.json({ message: 'User logged in successfully'})
+         res.json({ success: true, message: 'User logged in successfully'})
       })
       .catch(error => {
-         res.render('login_page', { error: error.message });
+         res.json({ success: false, errorMessage: error.message });   
       })
    }
    catch(error) {
-      res.render('login_page', { error: error.message });
+      res.json({ success: false, errorMessage: error.message });   
    }
 })
 

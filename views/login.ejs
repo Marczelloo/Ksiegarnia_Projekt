@@ -19,7 +19,7 @@
             <input type="password" name="password" id="password">
             <a href="/register"> Don't have an account? Register </a>
             <a href="/forgot-password"> Forgot password? </a>
-            <p id="errorInfo" style="display: none; color: rgb(236, 95, 95); font-weight: 600;"></p>
+            <p id="errorInfo"></p>
             <button type="submit"> Login </button>
          </form>
       </section>
@@ -73,9 +73,10 @@
                })
             });
 
-            if(response.status === 200)
+            const data = await response.json();
+
+            if(data.success)
             {
-               const data = await response.json();
                sessionStorage.setItem('showInfoBox', 'true');
                sessionStorage.setItem('infoBoxSuccess', 'true');
                sessionStorage.setItem('infoBoxText', `Logged in successfully!`);
@@ -83,11 +84,10 @@
             }
             else
             {
-               const data = await response.json();
                errorInfoText.style.display = 'block';
-               errorInfoText.innerText = data.message;
+               errorInfoText.innerText = data.errorMessage;
 
-               infoBoxText.textContent = data.message;
+               infoBoxText.textContent = data.errorMessage;
                infoBox.classList.remove('info-box_hidden');
                setTimeout(() => {
                   infoBox.classList.add('info-box_hidden');

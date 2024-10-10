@@ -13,11 +13,59 @@
 <body>
    <div class="wrapper">
       <%- include('partials/header', { logged }) %>
+      <%- include('partials/infoBox') %>
       <% if (success) { %>
       <section class="container">
-         <a href="/" class="back"> Go back </a>
-         <%= book.title %>
-         <%= book.author %>
+         <a href="/" class="book_go_back">
+            <span> 
+               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+               <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+               </svg>
+            </span>    
+            Go back 
+         </a>
+         <div class="book_container">
+            <div class="book_container_upper">
+               <div class="book_container_upper_left">
+                  <img src="/assets/images/book_placeholder_2.png" alt="Book cover">
+               </div>
+               <div class="book_container_upper_middle">
+                  <h2> <%= book.title %> </h2>
+                  <ul>
+                     <li> <span> Author: </span> <%= book.author %> </li>
+                     <li> <span> Language: </span> <%= book.language %> </li>
+                      <li> <span> Condition: </span> <%= book.condition %> <% if (book.condition !== 'new') { %> - <%= book.used_condition %> <% } %> </li>   
+                     <li> <span> Books in stock: </span> <%= book.quantity %> </li>
+                     <li> <span> Category: </span> <%= book.category %> </li>
+                     <li> <span> Subcategory: </span> <%= book.subcategory %></li>
+                     <li> <span> Pages: </span><%= book.pages %></li>
+                  </ul>
+               </div>
+               <div class="book_container_upper_right">
+                  <div class="book_container_upper_right_container">
+                     <h3> Price: <%= book.price %> &euro; </h3>
+                     <form id="addToCart">
+                        <select id="quantity">
+                           <option value="1"> 1 </option>
+                           <option value="2"> 2 </option>
+                           <option value="3"> 3 </option>
+                           <option value="4"> 4 </option>
+                           <option value="5"> 5 </option>
+                        </select>
+                        <button type="submit" id="addToCart"> 
+                           Add to cart 
+                           <svg class="svg-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M6.29977 5H21L19 12H7.37671M20 16H8L6 3H3M9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20C7 19.4477 7.44772 19 8 19C8.55228 19 9 19.4477 9 20ZM20 20C20 20.5523 19.5523 21 19 21C18.4477 21 18 20.5523 18 20C18 19.4477 18.4477 19 19 19C19.5523 19 20 19.4477 20 20Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                           </svg> 
+                        </button>
+                     </form>
+                     <p> Delivery within 24 hours </p>
+                     <p> Free delivery to bookstore </p>
+                     <p> 30 days to return </p>
+                  </div>
+               </div>
+            </div>
+         </div>
       </section>
       <% } else { %>
       <section class="container">
@@ -28,4 +76,54 @@
       <%- include('partials/footer') %>
    </div>
 </body>
+<script>
+   const infoBox = document.querySelector('.info-box_container');
+   const infoBoxText = document.querySelector('.info-box_text'); 
+   
+   document.getElementById("addToCart").addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const quantity = document.getElementById('quantity').value;
+      const title = `<%= book.title%>`;
+
+      try {
+         const response = await fetch('/api/cart/add', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+               title: title,
+               quantity: quantity
+            })
+         });
+
+         const data = await response.json();
+
+         console.log(data);
+
+         if(data.success)
+         {
+            infoBoxText.textContent = `Book '${title}' added to cart`;
+            infoBox.classList.add('info-box_success');
+            infoBox.classList.remove('info-box_hidden');
+            setTimeout(() => {
+               infoBox.classList.add('info-box_hidden');
+            }, 4000);
+         }
+         else
+         {
+            infoBoxText.textContent = data.errorMessage;
+            infoBox.classList.remove('info-box_success');
+            infoBox.classList.remove('info-box_hidden');
+            setTimeout(() => {
+               infoBox.classList.add('info-box_hidden');
+            }, 4000);
+         }
+      } catch (error) {
+         console.error('Error adding book to cart:', error);
+      }
+   });   
+
+</script>
 </html>

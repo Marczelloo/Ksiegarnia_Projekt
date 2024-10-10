@@ -119,7 +119,7 @@
                             headers: {
                                 'Content-Type': 'application/json'
                             },
-                            body: JSON.stringify({ title: bookTitle })
+                            body: JSON.stringify({ title: bookTitle, quantity: 1 })
                         });
 
                         const data = await response.json();

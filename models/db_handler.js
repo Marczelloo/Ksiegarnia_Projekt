@@ -396,10 +396,17 @@ class DB_Handler {
                }
                else
                {
-                  if(results.length === 0) reject(new Error('User not found'));
-                  
-                  const user = new User(results[0].username, results[0].email, results[0].password);
-                  resolve(user);
+                  if(results.length === 0) 
+                  {
+                     reject(new Error('User not found'));
+                     return;
+                  }
+                  else
+                  {
+                     const user = new User(results[0].username, results[0].email, results[0].password);
+                     resolve(user);
+
+                  }                  
                }
             })
          })
