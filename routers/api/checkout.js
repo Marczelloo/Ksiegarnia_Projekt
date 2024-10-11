@@ -11,7 +11,7 @@ router.post('/', (req, res) => {
    if(req.session.user)
    {
       const user = User.fromSession(req.session.user);
-      const total = user.calculate_cart_total();
+      const total = user.apply_discount();
       
 
       if(total > 0)

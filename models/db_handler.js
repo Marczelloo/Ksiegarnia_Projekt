@@ -492,7 +492,7 @@ class DB_Handler {
          {
             try
             {
-               await this.db.connection.query('SELECT id FROM book WHERE title = ?', [cartItems[i].book.title], 
+               this.db.connection.query('SELECT id FROM book WHERE title = ?', [cartItems[i].book.title], 
                async (error, results) => {
                   if(error)
                   {
@@ -506,7 +506,7 @@ class DB_Handler {
                   {
                      try
                      {
-                        await this.db.connection.query('SELECT id FROM multivolumebook WHERE title = ?', [cartItems[i].book.title],
+                        this.db.connection.query('SELECT id FROM multivolumebook WHERE title = ?', [cartItems[i].book.title],
                         (error, results) => {
                            if(error)
                            {
@@ -516,10 +516,12 @@ class DB_Handler {
                               else throw new Error('An unknown error occurred.' + error);
                            }
 
+                           const multi_volume_book_id = results[0].id;
+
                            if(results.length === 0) throw new Error('Book not found');
                            else
                            {
-                              this.db.connection.query('INSERT INTO orderItem (orderId, bookId, multiVolumeBookId, quantity, price) VALUES(?, ?, ?, ?, ?)', [orderId, null, results[0].id, cartItems[i].quantity, cartItems[i].book.price], (error, results) => {
+                              this.db.connection.query('INSERT INTO orderItem (orderId, bookId, multiVolumeBookId, quantity, price) VALUES(?, ?, ?, ?, ?)', [orderId, null, multi_volume_book_id, cartItems[i].quantity, cartItems[i].book.price], (error, results) => {
                                  if(error)
                                  {
                                     if (error.code === 'ER_BAD_DB_ERROR') throw new Error('Database does not exist.');
@@ -527,6 +529,15 @@ class DB_Handler {
                                     else if (error.code === 'ER_ACCESS_DENIED_ERROR') throw new Error('Access denied for user to database.');
                                     else throw new Error('An unknown error occurred.' + error);
                                  }
+
+                                 this.db.connection.query('UPDATE multivolumebook SET quantity = quantity - ? WHERE id = ?', [cartItems[i].quantity, multi_volume_book_id], (error, results) => {
+                                    if (error) {
+                                       if (error.code === 'ER_BAD_DB_ERROR') throw new Error('Database does not exist.');
+                                       else if (error.code === 'ER_PARSE_ERROR') throw new Error('SQL query syntax error.');
+                                       else if (error.code === 'ER_ACCESS_DENIED_ERROR') throw new Error('Access denied for user to database.');
+                                       else throw new Error('An unknown error occurred.' + error);
+                                    }
+                                 });
                               });
                            }
                         })
@@ -539,7 +550,8 @@ class DB_Handler {
                   }
                   else
                   {
-                     this.db.connection.query('INSERT INTO orderItem (orderId, bookId, multiVolumeBookId, quantity, price) VALUES(?, ?, ?, ?, ?)', [orderId, results[0].id, null, cartItems[i].quantity, cartItems[i].book.price], (error, results) => {
+                     const bookId = results[0].id;
+                     this.db.connection.query('INSERT INTO orderItem (orderId, bookId, multiVolumeBookId, quantity, price) VALUES(?, ?, ?, ?, ?)', [orderId, bookId, null, cartItems[i].quantity, cartItems[i].book.price], (error, results) => {
                         if(error)
                         {
                            if (error.code === 'ER_BAD_DB_ERROR') throw new Error('Database does not exist.');
@@ -547,6 +559,15 @@ class DB_Handler {
                            else if (error.code === 'ER_ACCESS_DENIED_ERROR') throw new Error('Access denied for user to database.');
                            else throw new Error('An unknown error occurred.' + error);
                         }
+
+                        this.db.connection.query('UPDATE book SET quantity = quantity - ? WHERE id = ?', [cartItems[i].quantity, bookId], (error, results) => {
+                           if (error) {
+                              if (error.code === 'ER_BAD_DB_ERROR') throw new Error('Database does not exist.');
+                              else if (error.code === 'ER_PARSE_ERROR') throw new Error('SQL query syntax error.');
+                              else if (error.code === 'ER_ACCESS_DENIED_ERROR') throw new Error('Access denied for user to database.');
+                              else throw new Error('An unknown error occurred.' + error);
+                           }
+                        })
                      });
                   }
                })
@@ -559,42 +580,42 @@ class DB_Handler {
          }
       } 
 
-      async getBookQuantity(title)
-      {
-         if(!title) throw new Error('Book title is missing ');
+      // async getBookQuantity(title)
+      // {
+      //    if(!title) throw new Error('Book title is missing ');
 
-         if(typeof title !== 'string') throw new Error('Book title must be a string');
+      //    if(typeof title !== 'string') throw new Error('Book title must be a string');
 
-         if(title.length < 3) throw new Error('Book title is too short');
-         if(title.length > 50) throw new Error('Book title is too long');
+      //    if(title.length < 3) throw new Error('Book title is too short');
+      //    if(title.length > 50) throw new Error('Book title is too long');
 
-         return new Promise((resolve, reject) => {
-            this.db.connection.query('SELECT quantity FROM book WHERE title = ?', [title], (error, results) => {
-               if(error)
-               {
-                  if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
-                  else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
-                  else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
-                  else reject(new Error('An unknown error occurred.' + error));
-               }
+      //    return new Promise((resolve, reject) => {
+      //       this.db.connection.query('SELECT quantity FROM book WHERE title = ?', [title], (error, results) => {
+      //          if(error)
+      //          {
+      //             if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+      //             else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+      //             else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+      //             else reject(new Error('An unknown error occurred.' + error));
+      //          }
                
-               if(results.length === 0) reject(new Error('Book not found'))
-               {
-                  this.db.connection.query('SELECT quantity FROM multivolumebook WHERE title = ?', [title], (error, results) => {
-                     if(error)
-                     {
-                        if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
-                        else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
-                        else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
-                        else reject(new Error('An unknown error occurred.' + error));
-                     }
+      //          if(results.length === 0) reject(new Error('Book not found'))
+      //          {
+      //             this.db.connection.query('SELECT quantity FROM multivolumebook WHERE title = ?', [title], (error, results) => {
+      //                if(error)
+      //                {
+      //                   if (error.code === 'ER_BAD_DB_ERROR') reject(new Error('Database does not exist.'));
+      //                   else if (error.code === 'ER_PARSE_ERROR') reject(new Error('SQL query syntax error.'));
+      //                   else if (error.code === 'ER_ACCESS_DENIED_ERROR') reject(new Error('Access denied for user to database.'));
+      //                   else reject(new Error('An unknown error occurred.' + error));
+      //                }
 
-                     if(results.length === 0) reject(new Error('Book not found'));
-                  });
-               }
-            });
-         });
-      }
+      //                if(results.length === 0) reject(new Error('Book not found'));
+      //             });
+      //          }
+      //       });
+      //    });
+      // }
 
       async getCategories()
       {

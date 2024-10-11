@@ -118,7 +118,7 @@ router.post('/add', (req, res) => {
                if (error.message == "Book not found") {
                   db_handler.getMultiVolumeBookByTitle(bookTitle)
                      .then(book => {
-                        const cartItem = new CartItem(book, 1);
+                        const cartItem = new CartItem(book, quantity);
 
                         const user = User.fromSession(req.session.user);
                         const existingCartItem = user.cart.items.find(item => item.book.get_title() === book.title);
